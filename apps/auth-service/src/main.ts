@@ -3,7 +3,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import swaggerUi from "swagger-ui-express";
 import { errorMiddleware } from "@packages/error-handler/error-middleware";
-import router from "./routes/auth.router";
+import router from "./routes/auth.route";
 
 const swaggerDocument = require("./swagger-output.json");
 

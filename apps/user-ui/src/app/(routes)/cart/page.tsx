@@ -1,13 +1,16 @@
 "use client";
+import {useQuery} from "@tanstack/react-query";
 import useDeviceTracking from "apps/user-ui/src/hooks/useDeviceTracking";
 import useLocationTracking from "apps/user-ui/src/hooks/useLocationTracking";
 import useUser from "apps/user-ui/src/hooks/useUser";
 import { useStore } from "apps/user-ui/src/store";
+import axiosInstance from "apps/user-ui/src/utils/axiosInstance";
 import {Loader2} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 const CartPage = () => {
   const router = useRouter();
@@ -21,6 +24,28 @@ const CartPage = () => {
   const [discountAmount, setDiscountAmount]=useState(0);
   const [couponCode, setCouponCode]=useState("");
   const [selectedAddressId, setSelectedAddressId]=useState("");
+
+  const createPaymentSession=async () => {
+    setLoading(true);
+
+    try {
+      const res=await axiosInstance.post(
+        "/order/api/create-payment-session",
+        {
+          cart,
+          selectedAddressId,
+          coupon: {},
+        }
+      );
+      const sessionId=res.data.sessionId;
+      router.push(`/checkout?sessionId=${sessionId}`)
+    } catch (error) {
+      toast.error("Something went wrong. Please try again.")
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const [loading, setLoading]=useState(false);
 
   const decreaseQuantity = (id: string) => {
@@ -49,6 +74,24 @@ const CartPage = () => {
     (total: number, item: any) => total+item.quantity*item.sale_price,
     0
   )
+
+   //Get addresses
+  const {data: addresses=[]}=useQuery<any[], Error>({
+    queryKey: ["shipping-addresses"],
+    queryFn: async () => {
+      const res=await axiosInstance.get("/api/shipping-addresses");
+      return res.data.addresses;
+    }
+  });
+
+  useEffect(() => {
+    if(addresses.length>0&&!selectedAddressId) {
+      const defaultAddr=addresses.find((addr) => addr.isDefault)
+      if(defaultAddr) {
+        setSelectedAddressId(defaultAddr.id)
+      }
+    }
+  }, [addresses, selectedAddressId])
 
   return (
     <div className="w-full bg-white">
@@ -200,17 +243,24 @@ const CartPage = () => {
                   <hr className="my-4 text-slate-200" />
                   <div className="mb-4">
                     <h4 className="mb-2 font-medium text-base">
-                      Selected Shipping Address
+                      Select Shipping Address
                     </h4>
-                    <select
-                      className="w-full p-2 border border-gray-200 rounded-md focus:outline-none focus:border-blue-500"
-                      value={selectedAddressId}
-                      onChange={(e) => setSelectedAddressId(e.target.value)}
-                    >
-                      <option value="123">
-                        Home - New York - USA
-                      </option>
-                    </select>
+                    {addresses?.length!==0&&(
+                      <select
+                        className="w-full p-2 border border-gray-200 rounded-md focus:outline-none"
+                        value={selectedAddressId}
+                        onChange={(e) => setSelectedAddressId(e.target.value)}
+                      >
+                        {addresses?.map((address: any) => (
+                          <option key={address.id} value={address.id}>
+                            {address.label} - {address.city}, {address.country}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                    {addresses?.length===0&&(
+                      <p className="text-sm text-slate-800">Please add an address from profile to create an order!</p>
+                    )}
                   </div>
                   <hr className="my-4 text-slate-200" />
                   <div className="mb-4">
@@ -231,6 +281,7 @@ const CartPage = () => {
                   </div>
 
                   <button
+                    onClick={createPaymentSession}
                     disabled={loading}
                     className="w-full flex items-center justify-center gap-2 cursor-pointer mt-4 py-3 bg-[#010f1c] text-white hover:bg-[#0989ff] transition-all rounded-lg"
 

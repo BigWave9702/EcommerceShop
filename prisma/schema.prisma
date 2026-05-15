@@ -261,6 +261,7 @@ model address {
 
 model notifications {
   id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  message       String
   creatorId     String   @db.ObjectId
   receiverId    String
   redirect_link String?
