@@ -42,6 +42,7 @@ const ProductDetailsCard = ({
 
   const estimatedDelivery = new Date();
   estimatedDelivery.setDate(estimatedDelivery.getDate() + 5);
+  console.log('data.colors: ', data.colors);
 
   return (
     <div
@@ -147,7 +148,7 @@ const ProductDetailsCard = ({
                 <div>
                   <strong>Color: </strong>
                   <div className="flex gap-2 mt-1">
-                    {data.color.map((color: string, index: number) => (
+                    {data.colors.map((color: string, index: number) => (
                       <button
                         key={index}
                         className={`w-8 h-8 cursor-pointer rounded-full border-2 ${

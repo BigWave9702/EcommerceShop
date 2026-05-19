@@ -407,7 +407,17 @@ export const getAllProducts = async (
           starting_date: null,
         },
         {
+          starting_date: {
+            isSet: false,
+          },
+        },
+        {
           ending_date: null,
+        },
+        {
+          ending_date: {
+            isSet: false,
+          },
         },
       ],
     };

@@ -19,7 +19,7 @@ interface ShopCardProps {
 
 const ShopCard: React.FC<ShopCardProps> = ({ shop }) => {
   return (
-    <div className='w-full rounded-md cursor-pointer bg-white border border-gray-200 shadow-sm overflow-hidden transition'>
+    <div className='w-full rounded-md cursor-pointer bg-white border border-gray-200 shadow-sm overflow-hidden transition h-[400px]'>
       {/* Cover */}
       <div className='h-[120px] w-full relative'>
         <Image

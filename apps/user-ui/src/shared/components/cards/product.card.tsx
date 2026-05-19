@@ -155,8 +155,8 @@ const ProductCard = ({
                   )
             }
             className="cursor-pointer hover:scale-110 transition"
-            fill={isWishListed? "red":"transparent"}
-            stroke={isWishListed ? "red" : "#4B5563"}
+            fill={"transparent"}
+            stroke={isInCart ? "red" : "#4B5563"}
           />
         </div>
       </div>
