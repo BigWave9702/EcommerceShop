@@ -3,6 +3,7 @@ import {useQueryClient} from '@tanstack/react-query';
 import useUser from 'apps/user-ui/src/hooks/useUser'
 import QuickActionCard from 'apps/user-ui/src/shared/components/cards/quick-action.card';
 import StatCard from 'apps/user-ui/src/shared/components/cards/stat.card';
+import ShippingAddressSection from 'apps/user-ui/src/shared/components/shippingAddress';
 import axiosInstance from 'apps/user-ui/src/utils/axiosInstance';
 import {BadgeCheck, Bell, CheckCircle, Clock, Gift, Inbox, Loader2, LogOut, MapPin, Pencil, PhoneCall, Receipt, Settings, ShoppingBag, Truck, User} from 'lucide-react';
 import Image from 'next/image';
