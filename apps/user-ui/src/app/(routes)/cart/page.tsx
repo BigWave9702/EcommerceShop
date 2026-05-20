@@ -115,13 +115,13 @@ const CartPage = () => {
           </div>
         ) : (
           <div className="lg:flex items-start gap-10">
-            <table className="w-full lg:w-[70%] border-collapse">
+            <table className="w-full lg:w-[70%] border-collapse table-fixed">
               <thead className="bg-[#f1f2f3] rounded">
                 <tr>
-                  <th className="py-3 text-left pl-4">Product</th>
-                  <th className="py-3 text-left">Price</th>
-                  <th className="py-3 text-left">Quantity</th>
-                  <th className="py-3 text-left">Action</th>
+                    <th className="py-3 text-left pl-4 w-[40%]">Product</th>
+                  <th className="py-3 text-left w-[20%]">Price</th>
+                  <th className="py-3 text-left w-[20%]">Quantity</th>
+                  <th className="py-3 text-left w-[20%]">Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -133,10 +133,10 @@ const CartPage = () => {
                         alt={item.title}
                         width={80}
                         height={80}
-                        className="rounded"
+                        className="rounded-[0.25rem] flex-shrink-0"
                       />
-                      <div className="flex flex-col">
-                        <span className="font-medium">{item.title}</span>
+                      <div className="flex flex-col min-w-0 flex-1">
+                        <span className="font-medium line-clamp-2 break-words">{item.title}</span>
                         {item?.selectedOptions && (
                           <div className="text-sm text-gray-500">
                             {item?.selectedOptions?.color && (
@@ -163,7 +163,7 @@ const CartPage = () => {
                         )}
                       </div>
                     </td>
-                    <td className="px-6 text-lg text-center">
+                    <td className="text-lg">
                       {item?.id===discountedProductId? (
                         <div className="flex flex-col items-center">
                           <span className="line-through text-gray-500 text-sm">
@@ -179,7 +179,7 @@ const CartPage = () => {
                       )}
                     </td>
                     <td>
-                      <div className="flex justify-center items-center border border-gray-200 rounded-[20px] w-[90px] p-[2px]">
+                      <div className="flex justify-around items-center border border-gray-200 rounded-[20px] w-[90px] p-[2px]">
                         <button
                           className="text-black cursor-pointer text-xl"
                           onClick={() => decreaseQuantity(item.id)}
@@ -195,7 +195,7 @@ const CartPage = () => {
                         </button>
                       </div>
                     </td>
-                    <td className="text-center">
+                    <td className="text-left">
                       <button
                         className="text-[#818487] cursor-pointer hover:text-[#ff1826] transition duration-200"
                         onClick={() => removeItem(item.id)}

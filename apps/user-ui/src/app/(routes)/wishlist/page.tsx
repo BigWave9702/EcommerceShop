@@ -64,10 +64,11 @@ const WishlistPage = () => {
             <table className="w-full border-collapse">
               <thead className="bg-[#f1f2f3]">
                 <tr>
-                  <th className="py-3 text-left pl-4">Product</th>
-                  <th className="py-3 text-left">Price</th>
-                  <th className="py-3 text-left">Quantity</th>
-                  <th className="py-3 text-left">Action</th>
+                  <th className="py-3 text-left pl-4 w-[30%]">Product</th>
+                  <th className="py-3 text-left w-[20%]">Price</th>
+                  <th className="py-3 text-left w-[20%]">Quantity</th>
+                  <th className="py-3 text-left w-[20%]">Action</th>
+                  <th className="py-3 text-left w-[10%]"></th>
                 </tr>
               </thead>
               <tbody>
@@ -79,17 +80,17 @@ const WishlistPage = () => {
                         alt={item.title}
                         width={80}
                         height={80}
-                        className="rounded"
+                        className="rounded-[0.25rem] flex-shrink-0"
                       />
-                      <div className="flex flex-col">
-                        <span className="font-medium">{item.title}</span>
+                      <div className="flex flex-col flex-1">
+                        <span className="font-medium line-clamp-2 break-words">{item.title}</span>
                       </div>
                     </td>
-                    <td className="px-6 text-lg text-center">
+                    <td className="text-lg">
                       ${item?.sale_price.toFixed(2)}
                     </td>
                     <td>
-                      <div className="flex justify-center items-center border border-gray-200 rounded-[20px] w-[90px] p-[2px]">
+                      <div className="flex justify-around items-center border border-gray-200 rounded-[20px] w-[90px] p-[2px]">
                         <button
                           className="text-black cursor-pointer text-xl"
                           onClick={() => decreaseQuantity(item.id)}

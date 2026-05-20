@@ -51,7 +51,17 @@ const ProductCard = ({
     }
     return;
   }, [isEvent, product?.ending_date]);
+  useEffect(() => {
+    if(open) {
+      document.body.style.overflow="hidden";
+    } else {
+      document.body.style.overflow="auto";
+    }
 
+    return () => {
+      document.body.style.overflow="auto";
+    };
+  }, [open]);
   return (
     <div className="w-full min-h-[350px] h-max bg-white rounded-lg relative px-2">
       {isEvent && (

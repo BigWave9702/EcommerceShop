@@ -49,7 +49,7 @@ const Header=() => {
             onKeyDown={(e) => e.key === "Enter" && handleSearchClick()}
             className="w-full px-4 font-Poppins font-medium border-[2.5px] rounded-lg border-[#3489ff] outline-none h-[55px]"
           />
-          <button onClick={handleSearchClick} className="w-[60px] cursor-pointer flex items-center justify-center h-[55px] bg-[#3489ff] absolute top-0 right-0">
+          <button onClick={handleSearchClick} className="w-[60px] cursor-pointer flex items-center justify-center h-[55px] bg-[#3489ff] absolute top-0 right-0 rounded-lg">
             <Search color="#fff" className="rounded-lg" />
           </button>
           {/* Suggestions */}

@@ -42,15 +42,14 @@ const ProductDetailsCard = ({
 
   const estimatedDelivery = new Date();
   estimatedDelivery.setDate(estimatedDelivery.getDate() + 5);
-  console.log('data.colors: ', data.colors);
-
+  console.log(data);
   return (
     <div
       className="fixed flex items-center justify-center top-0 left-0 h-screen w-full bg-[#0000001d] z-50"
       onClick={() => setOpen(false)}
     >
       <div
-        className="w-[90%] md:w-[70%] md:mt-14 2xl:mt-0 h-max overflow-scroll min-h-[70vh] p-4 md:p-6 bg-white shadow-md rounded-lg"
+        className="w-[90%] md:w-[70%] md:mt-14 2xl:mt-0 h-max min-h-[70vh] p-4 md:p-6 md:pt-10 pt-8 bg-white shadow-md rounded-lg overflow-y-auto overflow-x-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="w-full flex flex-col md:flex-row">
@@ -69,7 +68,7 @@ const ProductDetailsCard = ({
                   key={index}
                   className={`cursor-pointer border rounded-md ${
                     activeImage === index
-                      ? "border-gray-500 pt-1"
+                      ? "border-gray-500 p-1"
                       : "border-transparent"
                   }`}
                   onClick={() => setActiveImage(index)}
@@ -121,13 +120,13 @@ const ProductDetailsCard = ({
 
               {/* Chat with Seller Button */}
               <button
-                className="flex cursor-pointer items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium"
+                className="flex cursor-pointer items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg"
                 onClick={() => router.push(`/inbox?shopId=${data?.Shop?.id}`)}
               >
                 <MessageCircleMore size={14} /> Chat with Seller
               </button>
 
-              <button className="w-full absolute cursor-pointer right-[-5px] top-[-5px] flex justify-end my-2 mt-[-10px]">
+              <button className="w-full absolute cursor-pointer right-[-5px] top-[-1rem] flex justify-end my-2 mt-[-10px]">
                 <X size={25} onClick={() => setOpen(false)} />
               </button>
             </div>
@@ -198,14 +197,15 @@ const ProductDetailsCard = ({
             <div className="mt-5 flex items-center gap-5">
               <div className="flex items-center rounded-md">
                 <button
-                  className="px-3 cursor-pointer py-1 bg-gray-300 hover:bg-gray-400 text-black font-semibold rounded-l-md"
-                  onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
+                  className={`px-3 py-1 bg-gray-300 ${quantity === 1 ? 'cursor-not-allowed' : 'cursor-pointer hover:bg-gray-400'} text-black font-semibold rounded-l-md`}
+                  onClick={() => setQuantity((prev) => Math.max(1, prev-1))}
+                  disabled={quantity === 1}
                 >
                   -
                 </button>
                 <span className="px-4 bg-gray-100 py-1">{quantity}</span>
                 <button
-                  className="px-3 cursor-pointer py-1 bg-gray-300 hover:bg-gray-400 text-black font-semibold rounded-l-md"
+                  className="px-3 cursor-pointer py-1 bg-gray-300 hover:bg-gray-400 text-black font-semibold rounded-r-md"
                   onClick={() => setQuantity((prev) => Math.max(1, prev + 1))}
                 >
                   +
@@ -228,7 +228,7 @@ const ProductDetailsCard = ({
                     deviceInfo
                   )
                 }
-                className={`flex items-center gap-2 px-4 py-2 bg-[#ff5722] hover:bg-[#e64a19] text-white font-medium rounded-lg transition ${
+                className={`flex items-center gap-2 px-4 py-1 bg-[#ff5722] hover:bg-[#e64a19] text-white font-medium rounded-lg transition ${
                   isInCart ? "cursor-not-allowed" : "cursor-pointer"
                 }`}
               >
