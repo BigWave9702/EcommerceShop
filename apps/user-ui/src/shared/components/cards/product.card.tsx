@@ -63,7 +63,7 @@ const ProductCard = ({
     };
   }, [open]);
   return (
-    <div className="w-full min-h-[350px] h-max bg-white rounded-lg relative px-2">
+    <div className="w-full min-h-[298px] h-max bg-white rounded-xl relative">
       {isEvent && (
         <div className="absolute top-2 left-2 bg-red-600 text-white text-[10px] font-semibold px-2 py-1 rounded-sm shadow-md">
           OFFER
@@ -80,9 +80,9 @@ const ProductCard = ({
         <img
           src={product?.images[0]?.url || ""}
           alt={product?.title}
-          width={300}
-          height={300}
-          className="w-full h-[200px] object-cover mx-auto rounded-t-md"
+          width={200}
+          height={200}
+          className="w-full h-[188px] object-cover mx-auto rounded-t-md"
         />
       </Link>
 

@@ -39,19 +39,19 @@ const Page = () => {
     setSelectedCategories((prev) =>
       prev.includes(label)
         ? prev.filter((cat) => cat !== label)
-        : [...prev, label]
+        : [...prev, label],
     );
   };
 
   const toggleColor = (color: string) => {
     setSelectedColors((prev) =>
-      prev.includes(color) ? prev.filter((c) => c !== color) : [...prev, color]
+      prev.includes(color) ? prev.filter((c) => c !== color) : [...prev, color],
     );
   };
 
   const toggleSize = (size: string) => {
     setSelectedSizes((prev) =>
-      prev.includes(size) ? prev.filter((c) => c !== size) : [...prev, size]
+      prev.includes(size) ? prev.filter((c) => c !== size) : [...prev, size],
     );
   };
 
@@ -90,7 +90,7 @@ const Page = () => {
       query.set("page", page.toString());
       query.set("limit", "12");
       const res = await axiosInstance.get(
-        `/product/api/get-filtered-products?${query.toString()}`
+        `/product/api/get-filtered-products?${query.toString()}`,
       );
 
       setProducts(res.data.products);
@@ -126,9 +126,7 @@ const Page = () => {
           <Link href={"/"} className="text-[#55585bb] hover:underline">
             Home
           </Link>
-          <span className="inline-block p-[1.5px] mx-1 rounded-full">
-            .
-          </span>
+          <span className="inline-block p-[1.5px] mx-1 rounded-full">.</span>
           <span className="text-[#55585bb]">All Products</span>
         </div>
 
@@ -145,7 +143,8 @@ const Page = () => {
                 onChange={(values) => setTempPriceRange(values)}
                 renderTrack={({ props, children }) => {
                   const [min, max] = tempPriceRange;
-                  const percentageLeft = ((min - MIN) / (MAX - max)) * 100;
+
+                  const percentageLeft = ((min - MIN) / (MAX - MIN)) * 100;
                   const percentageRight = ((max - MIN) / (MAX - MIN)) * 100;
 
                   return (
@@ -157,10 +156,11 @@ const Page = () => {
                       <div
                         className="absolute h-full bg-blue-600 rounded"
                         style={{
-                          left: `${percentageLeft}`,
-                          right: `${percentageRight - percentageLeft}`,
+                          left: `${percentageLeft}%`,
+                          width: `${percentageRight - percentageLeft}%`,
                         }}
                       />
+
                       {children}
                     </div>
                   );
@@ -172,7 +172,7 @@ const Page = () => {
                     <div
                       key={key}
                       {...rest}
-                      className="w-[16px] h-[16px] bg-blue-600 rounded-full shadow"
+                      className="w-[16px] h-[16px] bg-blue-600 rounded-full shadow border-none focus:outline-none"
                     ></div>
                   );
                 }}
@@ -279,7 +279,7 @@ const Page = () => {
                 ))}
               </div>
             ) : products.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
                 {products.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}
@@ -288,12 +288,12 @@ const Page = () => {
               <p>No Products found!</p>
             )}
 
-            {totalPages>1&&(
+            {totalPages > 1 && (
               <div className="flex justify-center mt-8 gap-2">
-                {Array.from({length: totalPages}).map((_, i) => (
+                {Array.from({ length: totalPages }).map((_, i) => (
                   <button
-                    key={i+1}
-                    onClick={() => setPage(i+1)}
+                    key={i + 1}
+                    onClick={() => setPage(i + 1)}
                     className={`px-3 py-1 !rounded border border-gray-200 text-sm ${page === i + 1 ? "bg-blue-600 text-white" : "bg-white text-black"}`}
                   >
                     {i + 1}

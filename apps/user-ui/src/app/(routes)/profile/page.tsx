@@ -5,12 +5,12 @@ import QuickActionCard from 'apps/user-ui/src/shared/components/cards/quick-acti
 import StatCard from 'apps/user-ui/src/shared/components/cards/stat.card';
 import ShippingAddressSection from 'apps/user-ui/src/shared/components/shippingAddress';
 import axiosInstance from 'apps/user-ui/src/utils/axiosInstance';
-import {BadgeCheck, Bell, CheckCircle, Clock, Gift, Inbox, Loader2, LogOut, MapPin, Pencil, PhoneCall, Receipt, Settings, ShoppingBag, Truck, User} from 'lucide-react';
+import {BadgeCheck, Bell, CheckCircle, Clock, Gift, Inbox, Loader2, LogOut, MapPin, Pencil, PhoneCall, Receipt, Settings, ShoppingBag, Truck, User, Lock } from 'lucide-react';
 import Image from 'next/image';
 import {useRouter, useSearchParams} from 'next/navigation';
 import React, {useEffect, useState} from 'react'
 
-const Page=() => {
+const Page = () => {
   const searchParams=useSearchParams();
   const router=useRouter();
   const queryClient=useQueryClient();
@@ -123,7 +123,7 @@ const Page=() => {
               <div className='space-y-4 text-sm text-gray-700'>
                 <div className='flex items-center gap-3'>
                   <Image
-                    src={user?.avatar || "https://img.icons8.com/?size=100&id=13042&format=png&color=000000"}
+                    src={user?.avatar|| "https://ik.imagekit.io/bigwavehaibuithe/default-image.jpg?updatedAt=1757054034113"}
                     alt='profile'
                     width={60}
                     height={60}

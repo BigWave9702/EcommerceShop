@@ -14,7 +14,7 @@ const nextConfig = {
     svgr: false,
   },
   images: {
-    domains: ["ik.imagekit.io"],
+    domains: ["ik.imagekit.io", "www.sweelee.com.vn", "scontent.fhan5-11.fna.fbcdn.net"],
   },
 };
 

@@ -89,7 +89,7 @@ const Page = () => {
           <span className="text-[#55585bb]">All Shops</span>
         </div>
 
-        <div className="w-full flex flex-col lg:flex-row gap-8">
+        <div className="w-full flex flex-col lg:flex-row gap-6">
           {/* Sidebar */}
           <aside className="w-full lg:w-[270px] !rounded bg-white p-4 space-y-6 shadow-md">
             {/* Categories */}
@@ -140,7 +140,7 @@ const Page = () => {
           </aside>
 
           {/* shop grid */}
-          <div className="flex px-2 lg:px-3">
+          <div className="flex-1">
             {isShopLoading ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-2">
                 {Array.from({ length: 10 }).map((_, index) => (
@@ -151,7 +151,7 @@ const Page = () => {
                 ))}
               </div>
             ) : shops.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
                 {shops.map((shop) => (
                   <ShopCard key={shop.id} shop={shop} />
                 ))}

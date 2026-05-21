@@ -40,7 +40,7 @@ router.get("/logged-in-seller", isAuthenticated, isSeller, getSeller);
 router.post("/create-shop", createShop);
 router.post("/create-stripe-link", createStripeConnectLink);
 //address
-router.post("/shipping-addresses", isAuthenticated, getUserAddresses);
+router.get("/shipping-addresses", isAuthenticated, getUserAddresses);
 router.post("/add-address", isAuthenticated, addUserAddress);
 router.delete("/delete-address/:addressId", isAuthenticated, deleteAddress);
 

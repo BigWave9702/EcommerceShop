@@ -451,6 +451,16 @@
           }
         }
       }
+    },
+    "/top-shops": {
+      "get": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
     }
   }
 }
