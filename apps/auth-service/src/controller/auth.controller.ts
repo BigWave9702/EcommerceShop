@@ -20,7 +20,7 @@ import bcrypt from "bcryptjs";
 import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-07-30.basil",
+  apiVersion: "2026-04-22.dahlia",
 });
 
 // Register a new user
@@ -418,7 +418,7 @@ export const createStripeConnectLink = async (
     if (!seller) {
       return next(new ValidationError("Seller is not available with this id!"));
     }
-
+    console.log("Seller: ", seller);
     const account = await stripe.accounts.create({
       type: "express",
       email: seller?.email,

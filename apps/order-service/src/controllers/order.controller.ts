@@ -6,16 +6,17 @@ import crypto from "crypto";
 import Stripe from "stripe";
 import { Prisma } from "@prisma/client";
 import { sendEmail } from "../utils/sendEmail";
+import { PaymentIntent } from "node_modules/stripe/cjs/resources/PaymentIntents";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-07-30.basil",
+  apiVersion: "2026-04-22.dahlia",
 });
-
+console.log(process.env.STRIPE_SECRET_KEY);
 //create payment intent
 export const createPaymentIntent = async (
   req: any,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   const { amount, sellerStripeAccountId, sessionId } = req.body;
 
@@ -49,7 +50,7 @@ export const createPaymentIntent = async (
 export const createPaymentSession = async (
   req: any,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { cart, selectedAddressId, coupon } = req.body;
@@ -68,7 +69,7 @@ export const createPaymentSession = async (
           shopId: item.shopId,
           selectedOptions: item.selectedOptions || {},
         }))
-        .sort((a, b) => a.id.localCompare(b.id))
+        .sort((a, b) => a.id.localeCompare(b.id)),
     );
 
     const keys = await redis.keys("payment-session:*");
@@ -88,12 +89,12 @@ export const createPaymentSession = async (
                 shopId: item.shopId,
                 selectedOptions: item.selectedOptions || {},
               }))
-              .sort((a: any, b: any) => a.id.localCompare(b.id))
+              .sort((a: any, b: any) => a.id.localeCompare(b.id)),
           );
 
           if (existingCart === normalizedCart) {
             return res.status(200).json({
-              session: key.split(":")[1],
+              sessionId: key.split(":")[1],
             });
           } else {
             await redis.del(key);
@@ -146,7 +147,7 @@ export const createPaymentSession = async (
     await redis.setex(
       `payment-session:${sessionId}`,
       600,
-      JSON.stringify(sessionData)
+      JSON.stringify(sessionData),
     );
 
     return res.status(201).json({ sessionId });
@@ -159,7 +160,7 @@ export const createPaymentSession = async (
 export const verifyingPaymentSession = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const sessionId = req.query.sessionId as string;
@@ -193,7 +194,7 @@ export const verifyingPaymentSession = async (
 export const createOrder = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const stripeSignature = req.headers["stripe-signature"];
@@ -208,7 +209,7 @@ export const createOrder = async (
       event = stripe.webhooks.constructEvent(
         rawBody,
         stripeSignature,
-        process.env.STRIPE_WEBHOOK_SECRET!
+        process.env.STRIPE_WEBHOOK_SECRET!,
       );
     } catch (err: any) {
       console.log("Webhook signature verification failed.", err.message);
@@ -216,7 +217,7 @@ export const createOrder = async (
     }
 
     if (event.type === "payment_intent.succeeded") {
-      const paymentIntent = event.data.object as Stripe.PaymentIntent;
+      const paymentIntent = event.data.object as PaymentIntent;
       const sessionId = paymentIntent.metadata.sessionId;
       const userId = paymentIntent.metadata.userId;
 
@@ -247,7 +248,7 @@ export const createOrder = async (
 
         let orderTotal = orderItems.reduce(
           (sum: number, p: any) => sum + p.quantity * p.sale_price,
-          0
+          0,
         );
 
         if (
@@ -256,7 +257,7 @@ export const createOrder = async (
           orderItems.some((item: any) => item.id === coupon.discountedProductId)
         ) {
           const discountedItem = orderItems.find(
-            (item: any) => item.id === coupon.discountedProductId
+            (item: any) => item.id === coupon.discountedProductId,
           );
           if (discountedItem) {
             const discount =
@@ -363,7 +364,7 @@ export const createOrder = async (
               ? totalAmount - coupon?.discountAmount
               : totalAmount,
             trackingUrl: `https://eshop.com/order/${sessionId}`,
-          }
+          },
         );
 
         // Create notifications for sellers
@@ -408,5 +409,36 @@ export const createOrder = async (
   } catch (error) {
     console.log(error);
     return next(error);
+  }
+};
+
+//get sellers orders
+export const getSellerOrders = async (
+  req: any,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const shops = await prisma.shops.findUnique({
+      where: { sellerId: req.seller.id },
+    });
+    //fetch all orders for the this shop
+    const orders = await prisma.orders.findMany({
+      where: { shopId: shops?.id },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatar: true,
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+    res.status(201).json({ orders });
+  } catch (error) {
+    next(error);
   }
 };

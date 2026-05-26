@@ -69,8 +69,8 @@ const CheckOutForm=({
               <span>${(item.quantity * item.sale_price).toFixed(2)}</span>
             </div>
           ))}
-          <div className='flex justify-between font-semibold pt-2 border-t border-t-transparent'>
-            {!!coupon?.discountAmount&&(
+          <div className='flex justify-between font-semibold pt-2 border-t border-t-[#e6e1e1]'>
+            {coupon && coupon?.discountAmount&&(
               <>
                 <span>Discount</span>
                 <span className='text-green-600'>

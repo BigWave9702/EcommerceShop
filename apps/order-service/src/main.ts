@@ -1,20 +1,22 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import bodyParser from "body-parser";
 import { errorMiddleware } from "@packages/error-handler/error-middleware";
 import router from "./routes/order.route";
+import bodyParser from "body-parser";
+import swaggerUi from "swagger-ui-express";
 import { createOrder } from "./controllers/order.controller";
+const swaggerDocument = require("./swagger-output.json");
 
 const app = express();
 
-app.use(
-  cors({
-    origin: ["http://location:3000"],
-    allowedHeaders: ["Authorization", "Content-Type"],
-    credentials: true,
-  })
-);
+//app.use(
+//  cors({
+//    origin: ["http://localhost:3000"],
+//    allowedHeaders: ["Authorization", "Content-Type"],
+//    credentials: true,
+//  })
+//);
 app.post(
   "/api/create-order",
   bodyParser.raw({ type: "application/json" }),
@@ -31,6 +33,11 @@ app.get("/", (req, res) => {
   res.send({ message: "Welcome to order-service!" });
 });
 
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.get("/docs-json", (req, res) => {
+  res.json(swaggerDocument);
+});
+
 //Routes
 app.use("/api", router);
 
@@ -38,6 +45,10 @@ app.use(errorMiddleware);
 
 const port = process.env.PORT || 6004;
 const server = app.listen(port, () => {
-  console.log(`Listening at http://localhost:${port}/api`);
+  console.log(`Order Service is running at http://localhost:${port}/api`);
+  console.log(`swagger docs available at http://localhost:${port}/api-docs`);
 });
-server.on("error", console.error);
+
+server.on("error", (err) => {
+  console.log("Server error: ", err);
+});

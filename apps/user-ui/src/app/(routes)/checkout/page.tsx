@@ -3,7 +3,7 @@ import React, {useEffect, useState} from 'react';
 import {Elements} from "@stripe/react-stripe-js";
 import {loadStripe, Appearance} from "@stripe/stripe-js";
 import {useSearchParams} from 'next/navigation';
-import {useRouter} from 'next/router';
+import {useRouter} from 'next/navigation';
 import axiosInstance from 'apps/user-ui/src/utils/axiosInstance';
 import {XCircle} from 'lucide-react';
 import CheckOutForm from 'apps/user-ui/src/shared/components/checkout/checkOutForm';
@@ -102,6 +102,7 @@ const Page=() => {
       </div>
     )
   }
+
 
   return (
     clientSecret&&(
