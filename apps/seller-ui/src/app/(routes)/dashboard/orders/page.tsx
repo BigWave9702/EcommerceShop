@@ -6,17 +6,17 @@ import {
   flexRender,
 } from "@tanstack/react-table";
 import Breadcrumbs from "apps/seller-ui/src/shared/components/Breadcrumbs";
-import axiosInstance from 'apps/seller-ui/src/utils/axiosInstance';
-import {Eye, Link, Search} from 'lucide-react';
-import {useQuery} from 'node_modules/@tanstack/react-query/build/modern/_tsup-dts-rollup';
-import React, {useMemo, useState} from 'react'
+import axiosInstance from "apps/seller-ui/src/utils/axiosInstance";
+import { Eye, Link, Search } from "lucide-react";
+import { useQuery } from "node_modules/@tanstack/react-query/build/modern/_tsup-dts-rollup";
+import React, { useMemo, useState } from "react";
 
-const fetchOrders=async () => {
-  const res=await axiosInstance.get("/order/api/get-seller-orders");
+const fetchOrders = async () => {
+  const res = await axiosInstance.get("/order/api/get-seller-orders");
   return res.data.orders;
-}
+};
 
-const page=() => {
+const page = () => {
   const [globalFilter, setGlobalFilter] = useState("");
 
   const { data: orders = [], isLoading } = useQuery({
@@ -25,69 +25,72 @@ const page=() => {
     staleTime: 1000 * 60 * 5,
   });
 
-  const columns = useMemo(() => [
-    {
-      accessorKey: "id",
-      header: "Order ID",
-      cell: ({row}: any) => (
-        <span className="text-white text-sm truncate">
-          #{row.original.id.slice(-6).toUpperCase()}
-        </span>
-      ),
-    },
-    {
-      accessorKey: "user.name",
-      header: "Buyer",
-      cell: ({row}: any) => (
-        <span className="text-white text-sm truncate">
-          {row.original?.user?.name ?? "Guest"}
-        </span>
-      )
-    },
-    {
-      accessorKey: "total",
-      header: "Total",
-      cell: ({row}: any) => (
-        <span className="text-white text-sm truncate">
-          ${row.original.total}
-        </span>
-      )
-    },
-    {
-      accessorKey: "status",
-      header: "Status",
-      cell: ({row}: any) => (
-        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-          row.original.status === "Paid" ?
-          "bg-green-600 text-white" :
-          "bg-yellow-500 text-white"
-          }`}
-        >
-          {row.original.status}
-        </span>
-      )
-    },
-    {
-      accessorKey: "createdAt",
-      header: "Date",
-      cell: ({row}: any) => {
-        const date=new Date(row.original.createdAt).toLocaleDateString();
-        return (
+  const columns = useMemo(
+    () => [
+      {
+        accessorKey: "id",
+        header: "Order ID",
+        cell: ({ row }: any) => (
           <span className="text-white text-sm truncate">
-            {date}
+            #{row.original.id.slice(-6).toUpperCase()}
           </span>
-        )
-      }
-    },
-    {
-      header: "Actions",
-      cell: ({row}: any) => (
-        <Link href={`/orders/${row.original.id}`} className="text-blue-400 hover:text-blue-300 transition">
-          <Eye size={18} />
-        </Link>
-      )
-    }
-  ], []);
+        ),
+      },
+      {
+        accessorKey: "user.name",
+        header: "Buyer",
+        cell: ({ row }: any) => (
+          <span className="text-white text-sm truncate">
+            {row.original?.user?.name ?? "Guest"}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "total",
+        header: "Total",
+        cell: ({ row }: any) => (
+          <span className="text-white text-sm truncate">
+            ${row.original.total}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "status",
+        header: "Status",
+        cell: ({ row }: any) => (
+          <span
+            className={`px-2 py-1 rounded-full text-xs font-medium ${
+              row.original.status === "Paid"
+                ? "bg-green-600 text-white"
+                : "bg-yellow-500 text-white"
+            }`}
+          >
+            {row.original.status}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "createdAt",
+        header: "Date",
+        cell: ({ row }: any) => {
+          const date = new Date(row.original.createdAt).toLocaleDateString();
+          return <span className="text-white text-sm truncate">{date}</span>;
+        },
+      },
+      {
+        header: "Actions",
+        cell: ({ row }: any) => (
+          <Link
+            href={`/orders/${row.original.id}`}
+            className="text-blue-400 hover:text-blue-300 transition"
+          >
+            <Eye size={18} />
+          </Link>
+        ),
+      },
+    ],
+    [],
+  );
 
   const table = useReactTable({
     data: orders,
@@ -116,9 +119,9 @@ const page=() => {
 
       {/* Table */}
       <div className="overflow-x-auto bg-gray-900 rounded-lg p-4">
-        {isLoading? (
+        {isLoading ? (
           <p className="text-center text-white">Loading Orders...</p>
-        ):(
+        ) : (
           <table className="w-full text-white">
             <thead>
               {table.getHeaderGroups().map((headerGroup) => (
@@ -127,7 +130,7 @@ const page=() => {
                     <th key={header.id} className="p-3 text-left text-sm">
                       {flexRender(
                         header.column.columnDef.header,
-                        header.getContext()
+                        header.getContext(),
                       )}
                     </th>
                   ))}
@@ -144,7 +147,7 @@ const page=() => {
                     <td key={cell.id} className="p-3">
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </td>
                   ))}
@@ -160,6 +163,6 @@ const page=() => {
       </div>
     </div>
   );
-}
+};
 
-export default page
+export default page;

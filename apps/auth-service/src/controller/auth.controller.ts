@@ -204,6 +204,53 @@ export const refreshToken = async (
 //Log out user
 
 //update user password
+export const updateUserPassword = async (req: any, res: Response, next: NextFunction) => {
+  try {
+    const userId=req.user?.id;
+    const {currentPassword, newPassword, confirmPassword}=req.body;
+
+    if(!currentPassword||!newPassword||!confirmPassword) {
+      return next(new ValidationError("all field are required"))
+    }
+
+    if (newPassword !== confirmPassword) {
+      return next(new ValidationError("passwords do not match"))
+    }
+
+    if (currentPassword === newPassword) {
+      return next(
+        new ValidationError(
+          "New password cannot be the same as the current password"
+        )
+      )
+    }
+
+    const user=await prisma.users.findUnique({
+      where: { id: userId }
+    });
+    if (!user || !user.password) {
+      return next(new ValidationError("user not found or password not set"))
+    }
+
+    const isPasswordValid=await bcrypt.compare(
+      currentPassword,
+      user.password
+    );
+    if (!isPasswordValid) {
+      return next(new ValidationError("current password is incorrect"))
+    }
+
+    const hashedPassword=await bcrypt.hash(newPassword, 12);
+
+    await prisma.users.update({
+      where: {id: userId},
+      data: { password: hashedPassword },
+    })
+    return res.status(200).json({ success: true, message: "password updated successfully" });
+  } catch (error) {
+    next(error)
+  }
+}
 
 //get logged in user
 export const getUser = async (req: any, res: Response, next: NextFunction) => {

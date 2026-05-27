@@ -3,7 +3,11 @@ import express, { Router } from "express";
 import {
   createPaymentIntent,
   createPaymentSession,
+  getOrderDetails,
   getSellerOrders,
+  getUserOrders,
+  updateDeliveryStatus,
+  verifyCouponCode,
   verifyingPaymentSession,
 } from "../controllers/order.controller";
 import { isSeller } from "@packages/middleware/authorizeRoles";
@@ -19,5 +23,13 @@ router.get(
 );
 
 router.get("/get-seller-orders", isAuthenticated, isSeller, getSellerOrders);
+router.get(
+  "/get-order-details/:orderId",
+  isAuthenticated,
+  getOrderDetails,
+);
+router.put("/update-status/:orderId", isAuthenticated, isSeller, updateDeliveryStatus);
+router.put("/verify-coupon", isAuthenticated, verifyCouponCode);
+router.get("/get-user-orders", isAuthenticated, getUserOrders);
 
 export default router;
