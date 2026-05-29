@@ -11,7 +11,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: ["http://localhost:3000"],
+    origin: ["http://localhost:3000", "http://localhost:3001", "http://localhost:3002"],
     allowedHeaders: ["Authorization", "Content-Type"],
     credentials: true,
   })
@@ -23,7 +23,7 @@ app.use(express.urlencoded({ limit: "100mb", extended: true }));
 app.use(cookieParser());
 app.set("trust proxy", 1);
 
-app.use("/admin", proxy("http://localhost:6004"));
+app.use("/order", proxy("http://localhost:6004"));
 app.use("/admin", proxy("http://localhost:6005"));
 app.use("/seller", proxy("http://localhost:6003"));
 app.use("/product", proxy("http://localhost:6002"));

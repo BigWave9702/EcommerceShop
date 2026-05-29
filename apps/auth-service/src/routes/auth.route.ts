@@ -7,6 +7,7 @@ import {
   getSeller,
   getUser,
   getUserAddresses,
+  loginAdmin,
   loginSeller,
   loginUser,
   refreshToken,
@@ -45,5 +46,7 @@ router.post("/create-stripe-link", createStripeConnectLink);
 router.get("/shipping-addresses", isAuthenticated, getUserAddresses);
 router.post("/add-address", isAuthenticated, addUserAddress);
 router.delete("/delete-address/:addressId", isAuthenticated, deleteAddress);
+
+router.post("/login-admin", loginAdmin);
 
 export default router;
