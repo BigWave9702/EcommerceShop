@@ -5,15 +5,15 @@ import {
   getFilteredRowModel,
   flexRender,
 } from "@tanstack/react-table";
-import Breadcrumbs from "apps/seller-ui/src/shared/components/Breadcrumbs";
-import axiosInstance from "apps/seller-ui/src/utils/axiosInstance";
+import Link from 'next/link'
+import Breadcrumbs from "apps/admin-ui/src/shared/components/Breadcrumbs";
+import axiosInstance from "apps/admin-ui/src/utils/axiosInstance";
 import { Eye, Search } from "lucide-react";
 import { useQuery } from "node_modules/@tanstack/react-query/build/modern/_tsup-dts-rollup";
 import React, { useMemo, useState } from "react";
-import Link from 'next/link'
 
 const fetchOrders = async () => {
-  const res = await axiosInstance.get("/order/api/get-seller-orders");
+  const res = await axiosInstance.get("/order/api/get-admin-orders");
   return res.data.orders;
 };
 
@@ -21,7 +21,7 @@ const page = () => {
   const [globalFilter, setGlobalFilter] = useState("");
 
   const { data: orders = [], isLoading } = useQuery({
-    queryKey: ["seller-orders"],
+    queryKey: ["admin-orders"],
     queryFn: fetchOrders,
     staleTime: 1000 * 60 * 5,
   });
@@ -34,6 +34,15 @@ const page = () => {
         cell: ({ row }: any) => (
           <span className="text-white text-sm truncate">
             #{row.original.id.slice(-6).toUpperCase()}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "shop.name",
+        header: "Shop",
+        cell: ({row}: any) => (
+          <span className="text-white text-sm truncate">
+            {row.original?.shop?.name??"Unknown Shop"}
           </span>
         ),
       },
