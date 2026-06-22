@@ -4,20 +4,22 @@ import axiosInstance from 'apps/admin-ui/src/utils/axiosInstance';
 import React, {useDeferredValue, useMemo, useState} from 'react'
 import Image from "next/image";
 import Link from "next/link";
-import {BarChart, ChevronRight, Eye, Pencil, Plus, Search, Star, Trash} from "lucide-react";
-import {flexRender, getCoreRowModel, getFilteredRowModel, useReactTable} from '@tanstack/react-table';
+import { ChevronRight, Download, Plus, Search } from "lucide-react";
+import { getCoreRowModel, getSortedRowModel, getFilteredRowModel, flexRender, useReactTable } from '@tanstack/react-table';
+import { saveAs } from 'file-saver';
+import Breadcrumb from 'apps/admin-ui/src/shared/components/Breadcrumbs';
 
-const Page=() => {
+const EventsPage=() => {
   const [globalFilter, setGlobalFilter]=useState("");
   const deferredFilter=useDeferredValue(globalFilter);
   const [page, setPage]=useState(1);
   const limit=10;
 
   const { data, isLoading }: UseQueryResult<any> = useQuery({
-    queryKey: ["all-products", page],
+    queryKey: ["events-list", page],
     queryFn: async () => {
       const res = await axiosInstance.get(
-        `/admin/api/get-all-products?page=${page}&limit=${limit}`
+        `/admin/api/get-all-events?page=${page}&limit=${limit}`
       );
       return res.data;
     },
@@ -25,17 +27,17 @@ const Page=() => {
     staleTime: 1000 * 60 * 5,
   });
 
-  const allProducts=data?.data||[];
-  const filteredProducts = useMemo(() => {
-    return allProducts.filter((product: any) =>
-      Object.values(product)
+  const allEvents=data?.data||[];
+  const filteredEvents = useMemo(() => {
+    return allEvents.filter((event: any) =>
+      Object.values(event)
         .join(" ")
         .toLowerCase()
         .includes(deferredFilter.toLowerCase())
     );
-  }, [allProducts, deferredFilter]);
+  }, [allEvents, deferredFilter]);
 
-  const totalPages = Math.ceil((data?.meta.totalProducts ?? 0) / limit);
+  const totalPages = Math.ceil((data?.meta.totalEvents ?? 0) / limit);
 
   const columns=useMemo(() => [
     {
@@ -43,119 +45,92 @@ const Page=() => {
       header: "Image",
       cell: ({row}: any) => (
         <Image
-          src={row.original.images[0]?.url}
-          alt={row.original.images[0]?.url}
-          width={200}
-          height={200}
-          className="w-12 h-12 rounded-md object-cover"
+          src={row.original.images[0]?.url|| "https://ik.imagekit.io/bigwavehaibuithe/default-image.jpg?updatedAt=1757054034113"}
+          alt={row.original.title}
+          width={40}
+          height={40}
+          className="w-10 h-10 rounded object-cover"
         />
       ),
     },
     {
-      accessorKey: "name",
-      header: "Product Name",
+      accessorKey: "title",
+      header: "Title",
       cell: ({row}: any) => {
-        const truncatedTitle=
-          row.original.title.length>25
-            ? `${row.original.title.substring(0, 25)}...`
-            :row.original.title;
         return (
           <Link
             href={`${process.env.NEXT_PUBLIC_USER_UI_LINK}/product/${row.original.slug}`}
             className="text-blue-400 hover:underline"
-            title={row.original.title}
           >
-            {truncatedTitle}
+            {row.original.title}
           </Link>
         );
       },
     },
     {
-      accessorKey: "price",
-      header: "price",
+      accessorKey: "sale_price",
+      header: "Price",
       cell: ({row}: any) => <span>${row.original.sale_price}</span>,
     },
     {
       accessorKey: "stock",
       header: "Stock",
-      cell: ({row}: any) => (
-        <span
-          className={row.original.stock<10? "text-red-500":"text-white"}
-        >
-          ${row.original.sale_price}
-        </span>
-      ),
     },
     {
-      accessorKey: "category",
-      header: "Category",
+      accessorKey: "starting_date",
+      header: "Starting Date",
+      cell: ({row}: any) => new Date(row.original.starting_date).toLocaleDateString()
     },
     {
-      accessorKey: "rating",
-      header: "Rating",
-      cell: ({row}: any) => (
-        <div className="flex items-center gap-1 text-yellow-400">
-          <Star fill="#fde047" size={18} />{" "}
-          <span className="text-white">{row.original.ratings||5}</span>
-        </div>
-      ),
+      accessorKey: "ending_date",
+      header: "End",
+      cell: ({row}: any) => new Date(row.original.ending_date).toLocaleDateString()
     },
     {
-      header: "Action",
-      cell: ({row}: any) => (
-        <div className="flex gap-3">
-          <Link
-            href={`/product/${row.original.id}`}
-            className="text-blue-400 hover:text-blue-300 transition"
-          >
-            <Eye size={18} />
-          </Link>
-          <Link
-            href={`/product/edit/${row.original.id}`}
-            className="text-yellow-400 hover:text-yellow-300 transition"
-          >
-            <Pencil size={18} />
-          </Link>
-          <button className="text-green-400 hover:text-green-300 transition">
-            <BarChart size={18} />
-          </button>
-          <button className="text-red-400 hover:text-red-300 transition" onClick={() => {}}>
-            <Trash size={18} />
-          </button>
-        </div>
-      ),
-    },
+      accessorKey: "Shop.name",
+      header: "Shop Name",
+      cell: ({row}: any) => row.original.Shop?.name || '-',
+    }
   ], []);
 
   const table = useReactTable({
-    data: filteredProducts,
+    data: filteredEvents,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    globalFilterFn: "includesString",
     state: {globalFilter},
     onGlobalFilterChange: setGlobalFilter,
   });
 
+  const exportToCSV = () => {
+    const csvData=filteredEvents.map((event: any) =>
+      `${event.title},${event.sale_price},${event.stock},${new Date(event.starting_date).toLocaleDateString()},${new Date(event.ending_date).toLocaleDateString()},${event.Shop?.name||'-'}`
+    );
+    const blob=new Blob(
+      [`Title,Price,Stock,Starting Date,Ending Date,Shop Name\n${csvData.join("\n")}`],
+      {type: "text/csv:charset=utf-8"}
+    );
+    saveAs(blob, `events-page-${Date.now()}.csv`);
+  }
+
   return (
-    <div className="w-full min-h-screen p-8">
-      <div className="flex justify-between items-center mb-1">
-        <h2 className="text-2xl text-white font-semibold">All Products</h2>
-        <Link
-          href="/dashboard/create-product"
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
+    <div className="w-full min-h-screen p-8 bg-black text-white text-sm">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-3">
+        <h2 className="text-xl font-bold tracking-wide">All Events</h2>
+        <button
+          onClick={exportToCSV}
+          className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white transition rounded"
         >
-          <Plus /> Add Product
-        </Link>
+          <Download size={16} />
+          Export to CSV
+        </button>
       </div>
 
       {/* Breadcrumbs */}
-      <div className="flex items-center mb-4">
-        <Link href={"/dashboard"} className="text-blue-400 cursor-pointer">
-          Dashboard
-        </Link>
-        <ChevronRight size={20} className="text-gray-200" />
-        <span className="text-white">All Products</span>
+      <div className="mb-4">
+        <Breadcrumb title="All Events" />
       </div>
 
       {/* Search Bar */}
@@ -163,7 +138,7 @@ const Page=() => {
         <Search size={18} className="text-gray-400 mr-2" />
         <input
           type="text"
-          placeholder="Search products..."
+          placeholder="Search events..."
           className="w-full bg-transparent text-white outline-none"
           value={globalFilter}
           onChange={(e) => setGlobalFilter(e.target.value)}
@@ -173,7 +148,7 @@ const Page=() => {
       {/* Table */}
       <div className="overflow-x-auto bg-gray-900 rounded-lg p-4">
         {isLoading? (
-          <p className="text-center text-white">Loading Products...</p>
+          <p className="text-center text-white">Loading Events...</p>
         ):(
           <table className="w-full text-white">
             <thead>
@@ -211,4 +186,4 @@ const Page=() => {
   )
 }
 
-export default Page
+export default EventsPage;
