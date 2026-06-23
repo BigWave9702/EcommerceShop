@@ -1,8 +1,5 @@
-'use client';
-import {
-  useQuery,
-  UseQueryResult,
-} from "@tanstack/react-query";
+"use client";
+import { useQuery, UseQueryResult } from "@tanstack/react-query";
 import {
   getCoreRowModel,
   getFilteredRowModel,
@@ -27,7 +24,7 @@ type Seller = {
     name: string;
     avatar: string;
     address: string;
-  }
+  };
 };
 
 type SellersResponse = {
@@ -46,7 +43,7 @@ const SellersPage = () => {
   const deferredGlobalFilter = useDeferredValue(globalFilter);
   const limit = 10;
 
-  const {data, isLoading}: UseQueryResult<SellersResponse|Error>=useQuery<
+  const { data, isLoading }: UseQueryResult<SellersResponse | Error> = useQuery<
     SellersResponse,
     Error,
     SellersResponse,
@@ -66,13 +63,13 @@ const SellersPage = () => {
   const allSellers = data?.data || [];
   const filteredUsers = useMemo(() => {
     return allSellers.filter((seller) =>
-      deferredGlobalFilter?
-        Object.values(seller)
-          .map((v) => (typeof v==="string"? v:JSON.stringify(v)))
-          .join(" ")
-          .toLowerCase()
-          .includes(deferredGlobalFilter.toLowerCase())
-        :true
+      deferredGlobalFilter
+        ? Object.values(seller)
+            .map((v) => (typeof v === "string" ? v : JSON.stringify(v)))
+            .join(" ")
+            .toLowerCase()
+            .includes(deferredGlobalFilter.toLowerCase())
+        : true,
     );
   }, [allSellers, deferredGlobalFilter]);
 
@@ -82,9 +79,12 @@ const SellersPage = () => {
       {
         accessorKey: "shop.avatar",
         header: "Avatar",
-        cell: ({row}: any) => (
+        cell: ({ row }: any) => (
           <Image
-            src={row.original.images[0]?.url||"https://ik.imagekit.io/bigwavehaibuithe/default-image.jpg?updatedAt=1757054034113"}
+            src={
+              row.original.images[0]?.url ||
+              "https://ik.imagekit.io/bigwavehaibuithe/default-image.jpg?updatedAt=1757054034113"
+            }
             alt={row.original.title}
             width={40}
             height={40}
@@ -99,34 +99,34 @@ const SellersPage = () => {
       {
         accessorKey: "email",
         header: "Email",
-        cell: ({row}: any) => <span>${row.original.sale_price}</span>,
+        cell: ({ row }: any) => <span>${row.original.sale_price}</span>,
       },
       {
         accessorKey: "shop.name",
         header: "Shop Name",
-        cell: ({row}: any) => {
-          const shopName=row.original.shop?.name;
-          return shopName? (
+        cell: ({ row }: any) => {
+          const shopName = row.original.shop?.name;
+          return shopName ? (
             <a
-              href={`${process.env.NEXT_PUBLIC_USER_UI_LINK}/product/${row.original.slug}`}
+              href={`${process.env.NEXT_PUBLIC_USER_UI_LINK}/shop/${row.original.id}`}
               target="_blank"
               rel="noopener noreferrer"
               className="text-blue-400 hover:underline"
             >
               {shopName}
             </a>
-          ):(
-              <span className="text-gray-400 italic">No Shop</span>
-          )
-        }
+          ) : (
+            <span className="text-gray-400 italic">No Shop</span>
+          );
+        },
       },
       {
         accessorKey: "shop.address",
-        header: "Shop Address"
+        header: "Shop Address",
       },
       {
         accessorKey: "createdAt",
-        header: "Joined"
+        header: "Joined",
       },
     ],
     [],
@@ -157,7 +157,7 @@ const SellersPage = () => {
     <div className="w-full min-h-screen p-8 bg-black text-white text-sm">
       {/* Header */}
       <div className="flex justify-between items-center mb-3">
-        <h2 className="text-xl font-bold tracking-wide">All Users</h2>
+        <h2 className="text-xl font-bold tracking-wide">All Sellers</h2>
         <div className="flex items-center gap-2">
           <button
             onClick={exportToCSV}
