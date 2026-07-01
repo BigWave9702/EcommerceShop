@@ -23,6 +23,9 @@ app.use(express.urlencoded({ limit: "100mb", extended: true }));
 app.use(cookieParser());
 app.set("trust proxy", 1);
 
+app.use("/logger", proxy("http://localhost:6008"));
+app.use("/recommendation", proxy("http://localhost:6007"));
+app.use("/chatting", proxy("http://localhost:6006"));
 app.use("/order", proxy("http://localhost:6004"));
 app.use("/admin", proxy("http://localhost:6005"));
 app.use("/seller", proxy("http://localhost:6003"));

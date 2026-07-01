@@ -14,6 +14,8 @@ import { useStore } from "apps/user-ui/src/store";
 import useDeviceTracking from "apps/user-ui/src/hooks/useDeviceTracking";
 import useLocationTracking from "apps/user-ui/src/hooks/useLocationTracking";
 import useUser from "apps/user-ui/src/hooks/useUser";
+import axiosInstance from "apps/user-ui/src/utils/axiosInstance";
+import { isProtected } from "apps/user-ui/src/utils/protected";
 
 const ProductDetailsCard = ({
   data,
@@ -26,6 +28,7 @@ const ProductDetailsCard = ({
   const [isSelected, setIsSelected] = useState(data?.colors?.[0] || "");
   const [isSizeSelected, setIsSizeSelected] = useState(data?.sizes?.[0] || "");
   const [quantity, setQuantity] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
 
   const location = useLocationTracking();
   const deviceInfo = useDeviceTracking();
@@ -42,7 +45,27 @@ const ProductDetailsCard = ({
 
   const estimatedDelivery = new Date();
   estimatedDelivery.setDate(estimatedDelivery.getDate() + 5);
-  console.log(data);
+
+  const handleChat= async () => {
+    if(isLoading) {
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const res= await axiosInstance.post("/chatting/api/create-user-conversationGroup",
+        {sellerId: data?.Shop?.id},
+        isProtected
+      )
+      router.push(`/inbox?conversationId=${res.data.conversation.id}`);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   return (
     <div
       className="fixed flex items-center justify-center top-0 left-0 h-screen w-full bg-[#0000001d] z-50"
@@ -121,7 +144,7 @@ const ProductDetailsCard = ({
               {/* Chat with Seller Button */}
               <button
                 className="flex cursor-pointer items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg"
-                onClick={() => router.push(`/inbox?shopId=${data?.Shop?.id}`)}
+                onClick={() => handleChat()}
               >
                 <MessageCircleMore size={14} /> Chat with Seller
               </button>
