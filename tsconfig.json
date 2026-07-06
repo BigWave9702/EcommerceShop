@@ -40,7 +40,7 @@
       "path": "./apps/logger-service"
     },
     {
-      "path": "./apps/recomendation-service"
+      "path": "./apps/recommendation-service"
     }
   ]
 }

@@ -1,8 +1,10 @@
 "use client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useWebSocket } from "apps/user-ui/src/context/web-socket-context";
 import useRequiredAuth from "apps/user-ui/src/hooks/useRequiredAuth";
+import ChatInput from "apps/user-ui/src/shared/components/chats/chatinput";
 import axiosInstance from "apps/user-ui/src/utils/axiosInstance";
-import {isProtected} from "apps/user-ui/src/utils/protected";
+import { isProtected } from "apps/user-ui/src/utils/protected";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
@@ -23,14 +25,15 @@ const Page = () => {
   const [page, setPage] = useState(1);
   const [hasFetchedOnce, setHasFetchOnce] = useState(false);
   const conversationId = searchParams.get("conversationId");
+  const { ws } = useWebSocket();
 
-  const {data: messages=[]}=useQuery({
+  const { data: messages = [] } = useQuery({
     queryKey: ["messages", conversationId],
     queryFn: async () => {
-      if(!conversationId||hasFetchedOnce) return [];
-      const res=await axiosInstance.get(
+      if (!conversationId || hasFetchedOnce) return [];
+      const res = await axiosInstance.get(
         `/chatting/api/get-messages/${conversationId}?page=1`,
-        isProtected
+        isProtected,
       );
       setPage(1);
       setHasMore(res.data.hasMore);
@@ -38,51 +41,118 @@ const Page = () => {
       return res.data.messages.reverse();
     },
     enabled: !!conversationId,
-    staleTime: 2*60*1000,
+    staleTime: 2 * 60 * 1000,
   });
 
-  const loadMoreMessages=async () => {
-    const nextPage=page+1;
+  const loadMoreMessages = async () => {
+    const nextPage = page + 1;
     const res = await axiosInstance.get(
       `/chatting/api/get-messages/${conversationId}?page=${nextPage}`,
-      isProtected
+      isProtected,
     );
 
     queryClient.setQueryData(["messages", conversationId], (old: any) => {
-      return [...res.data.messages.reverse(), ...old ];
+      return [...res.data.messages.reverse(), ...old];
     });
 
     setPage(nextPage);
     setHasMore(res.data.hasMore);
   };
 
-  const {data: conversations, isLoading}=useQuery({
+  const { data: conversations, isLoading } = useQuery({
     queryKey: ["conversations"],
     queryFn: async () => {
-      const res=await axiosInstance.get(
+      const res = await axiosInstance.get(
         "/chatting/api/get-user-conversations",
-        isProtected
+        isProtected,
       );
       return res.data.conversations;
     },
   });
 
   useEffect(() => {
-    if(conversations) setChats(conversations);
+    if (conversations) setChats(conversations);
   }, [conversations]);
 
   useEffect(() => {
-    if(conversationId&&chats.length>0) {
-      const chat=chats.find((c) => c.conversationId===conversationId);
-      setSelectedChat(chat||null);
+    if (message?.length > 0) {
+      scrollToBottom();
+    }
+  }, [message]);
+
+  useEffect(() => {
+    if (conversationId && chats.length > 0) {
+      const chat = chats.find((c) => c.conversationId === conversationId);
+      setSelectedChat(chat || null);
     }
   }, [conversationId, chats]);
 
+  const handleChatSelect = (chat: any) => {
+    setHasFetchOnce(false);
+    setChats((prev) =>
+      prev.map((c) =>
+        c.conversationId === chat.conversationId ? { ...c, unreadCount: 0 } : c,
+      ),
+    );
+    router.push(`?conversationId=${chat.conversationId}`);
+
+    ws?.send(
+      JSON.stringify({
+        type: "MARK_AS_SEEN",
+        conversationId: chat.conversationId,
+      }),
+    );
+  };
+
+  const scrollToBottom = () => {
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        scrollAnchorRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 0);
+    });
+  };
+
   const handleSend = async (e: any) => {
     e.preventDefault();
-  }
 
-  const getLastMessage=(chat: any) => chat?.lastMessage||"";
+    if (!message.trim() || !selectedChat) return;
+
+    const payload = {
+      fromUserId: user?.id,
+      toUserId: selectedChat.seller?.id,
+      conversationId: selectedChat.conversationId,
+      messageBody: message,
+      senderType: "user",
+    };
+
+    ws?.send(JSON.stringify(payload));
+
+    queryClient.setQueryData(
+      ["messages", selectedChat.conversationId],
+      (old: any = []) => [
+        ...old,
+        {
+          content: payload.messageBody,
+          senderType: payload.senderType,
+          seen: false,
+          createdAt: new Date().toISOString(),
+        },
+      ],
+    );
+
+    setChats((prevChats) =>
+      prevChats.map((chat) =>
+        chat.conversationId
+          ? { ...chat, lastMessage: payload.messageBody }
+          : chat,
+      ),
+    );
+
+    setMessage("");
+    scrollToBottom();
+  };
+
+  const getLastMessage = (chat: any) => chat?.lastMessage || "";
 
   return (
     <div className="w-full">
@@ -94,17 +164,19 @@ const Page = () => {
             </div>
 
             <div className="divide-y divide-gray-200">
-              {isLoading? (
+              {isLoading ? (
                 <div className="p-4 text-sm text-gray-500">Loading...</div>
-              ) : chats.length===0 ? (
+              ) : chats.length === 0 ? (
                 <div className="p-4 text-sm text-gray-500">No Conversation</div>
               ) : (
                 chats.map((chat) => {
-                  const isActive = selectedChat?.conversationId===chat.conversationId;
+                  const isActive =
+                    selectedChat?.conversationId === chat.conversationId;
 
                   return (
                     <button
                       key={chat.conversationId}
+                      onClick={() => handleChatSelect(chat)}
                       className={`w-full text-left px-4 py-3 transition hover:bg-blue-50 ${
                         isActive ? "bg-blue-100" : ""
                       }`}
@@ -115,7 +187,7 @@ const Page = () => {
                             chat.seller?.avatar ||
                             "https://ik.imagekit.io/bigwavehaibuithe/default-image.jpg?updatedAt=1757054034113"
                           }
-                          alt={chat.seller?.name||"Unknown"}
+                          alt={chat.seller?.name || "Unknown"}
                           width={36}
                           height={36}
                           className="rounded-full border w-[40px] h-[40px] object-cover"
@@ -125,7 +197,7 @@ const Page = () => {
                             <span className="text-sm text-gray-800 font-semibold">
                               {chat.seller?.name}
                             </span>
-                            {chat.seller?.isOnline&&(
+                            {chat.seller?.isOnline && (
                               <span className="w-2 h-2 rounded-full bg-green-500" />
                             )}
                           </div>
@@ -135,7 +207,7 @@ const Page = () => {
                         </div>
                       </div>
                     </button>
-                  )
+                  );
                 })
               )}
             </div>
@@ -146,7 +218,10 @@ const Page = () => {
               <>
                 <div className="p-4 border-b border-b-gray-200 bg-white flex items-center gap-3">
                   <Image
-                    src={ selectedChat.seller?.avatar || "https://ik.imagekit.io/bigwavehaibuithe/default-image.jpg?updatedAt=1757054034113" }
+                    src={
+                      selectedChat.seller?.avatar ||
+                      "https://ik.imagekit.io/bigwavehaibuithe/default-image.jpg?updatedAt=1757054034113"
+                    }
                     alt={selectedChat.seller?.name || "Unknown"}
                     width={40}
                     height={40}
@@ -162,13 +237,14 @@ const Page = () => {
                   </div>
                 </div>
 
-                <div ref={messageContainerRef}
+                <div
+                  ref={messageContainerRef}
                   className="flex-1 overflow-y-auto px-6 py-6 space-y-4 text-sm"
                 >
-                  {hasMore&&(
+                  {hasMore && (
                     <div className="flex justify-center mb-2">
                       <button
-                        //onClick={loadMoreMessages}
+                        onClick={loadMoreMessages}
                         className="text-xs px-4 py-1 bg-gray-200 hover:bg-gray-300 rounded transition"
                       >
                         Load previous messages
@@ -180,28 +256,32 @@ const Page = () => {
                     <div
                       key={index}
                       className={`flex flex-col ${
-                        msg.senderType==="user"? "items-end ml-auto":"items-start"
+                        msg.senderType === "user"
+                          ? "items-end ml-auto"
+                          : "items-start"
                       } max-w-[80%]`}
                     >
                       <div
-                        className={`${msg.senderType==="user"
-                          ? "bg-blue-600 text-white"
-                          : "bg-white text-gray-800"
+                        className={`${
+                          msg.senderType === "user"
+                            ? "bg-blue-600 text-white"
+                            : "bg-white text-gray-800"
                         } px-4 py-2 rounded-lg shadow-sm w-fit`}
                       >
                         {msg.text || msg.content}
                       </div>
                       <div
                         className={`text-[11px] text-gray-400 mt-1 flex items-center ${
-                          msg.senderType==="user" ? "mr-1 justify-end":"ml-1"
+                          msg.senderType === "user"
+                            ? "mr-1 justify-end"
+                            : "ml-1"
                         }`}
                       >
-                        {msg.time||
+                        {msg.time ||
                           new Date(msg.createdAt).toLocaleTimeString([], {
                             hour: "2-digit",
                             minute: "2-digit",
-                          })
-                        }
+                          })}
                       </div>
                     </div>
                   ))}
@@ -215,7 +295,7 @@ const Page = () => {
                 />
               </>
             ) : (
-              <div className="flex-1 flex items-center justify-center text-gray-500">
+              <div className="flex-1 flex items-center justify-center text-gray-400 text-sm">
                 Select a conversation to start chatting
               </div>
             )}
