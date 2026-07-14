@@ -24,7 +24,7 @@
     ],
     "paths": {
       "@/*": ["./src/*"],
-      "@packages/*": ["../../packages/*/src"]
+      "@packages/*": ["packages/*"]
     },
     "outDir": "dist",
     "rootDir": "../../",

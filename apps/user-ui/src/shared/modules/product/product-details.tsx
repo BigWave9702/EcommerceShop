@@ -6,7 +6,6 @@ import {
   ChevronRight,
   Heart,
   MapPin,
-  MessageSquare,
   MessageSquareText,
   Package,
   ShoppingCart,
@@ -21,6 +20,8 @@ import useLocationTracking from "apps/user-ui/src/hooks/useLocationTracking";
 import useDeviceTracking from "apps/user-ui/src/hooks/useDeviceTracking";
 import axiosInstance from "apps/user-ui/src/utils/axiosInstance";
 import ProductCard from "../../components/cards/product.card";
+import {isProtected} from "apps/user-ui/src/utils/protected";
+import {useRouter} from "next/navigation";
 
 const ProductDetails = ({ productDetails }: { productDetails: any }) => {
   const [currentImage, setCurrentImage] = useState(
@@ -35,7 +36,7 @@ const ProductDetails = ({ productDetails }: { productDetails: any }) => {
     productDetails?.sizes?.[0] || "",
   );
   const [quantity, setQuantity] = useState(1);
-  const [priceRange, setPriceRange] = useState([
+  const [priceRange] = useState([
     productDetails?.sale_price,
     1199,
   ]);
@@ -43,6 +44,8 @@ const ProductDetails = ({ productDetails }: { productDetails: any }) => {
   const [recommendedProducts, setRecommendedProducts] = useState([]);
 
   const { user } = useUser();
+  const router = useRouter();
+  const [isChatLoading, setIsChatLoading]=useState(false);
   const location = useLocationTracking();
   const deviceInfo = useDeviceTracking();
   const addToCart = useStore((state: any) => state.addToCart);
@@ -97,6 +100,26 @@ const ProductDetails = ({ productDetails }: { productDetails: any }) => {
   useEffect(() => {
     fetchFilteredProducts();
   }, [priceRange]);
+
+  const handleChat=async () => {
+    if(isChatLoading) {
+      return;
+    }
+
+    setIsChatLoading(true);
+
+    try {
+      const res=await axiosInstance.post("/chatting/api/create-user-conversationGroup",
+        {sellerId: productDetails?.Shop?.id},
+        isProtected
+      )
+      router.push(`/inbox?conversationId=${res.data.conversation.id}`);
+    } catch(error) {
+      console.log(error);
+    } finally {
+      setIsChatLoading(false);
+    }
+  }
 
   return (
     <div className="w-full bg-[#f5f5f5] py-5">
@@ -364,6 +387,7 @@ const ProductDetails = ({ productDetails }: { productDetails: any }) => {
 
                 <Link
                   href={"#"}
+                  onClick={() => handleChat()}
                   className="text-blue-500 text-sm flex items-center gap-1"
                 >
                   <MessageSquareText />

@@ -16,6 +16,10 @@ import useLocationTracking from "apps/user-ui/src/hooks/useLocationTracking";
 import useUser from "apps/user-ui/src/hooks/useUser";
 import axiosInstance from "apps/user-ui/src/utils/axiosInstance";
 import { isProtected } from "apps/user-ui/src/utils/protected";
+import { getImageUrl } from "apps/user-ui/src/utils/image";
+
+const DEFAULT_SHOP_IMAGE =
+  "https://ik.imagekit.io/bigwavehaibuithe/default-image.jpg?updatedAt=1757054034113";
 
 const ProductDetailsCard = ({
   data,
@@ -114,7 +118,7 @@ const ProductDetailsCard = ({
               <div className="flex items-start gap-3">
                 {/* Shop Logo */}
                 <Image
-                  src={data?.Shop?.avatar}
+                  src={getImageUrl(data?.Shop?.avatar, DEFAULT_SHOP_IMAGE)}
                   alt="Shop Logo"
                   width={60}
                   height={60}

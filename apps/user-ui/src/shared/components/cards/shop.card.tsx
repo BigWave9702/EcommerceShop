@@ -2,13 +2,17 @@ import { ArrowUpRight, MapPin, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
+import { getImageUrl, ImageLike } from "apps/user-ui/src/utils/image";
+
+const DEFAULT_SHOP_AVATAR =
+  "https://scontent.fhan5-11.fna.fbcdn.net/v/t39.30808-1/423693810_713409194268423_4424368522200979225_n.jpg?stp=dst-jpg_s200x200_tt6&_nc_cat=100&ccb=1-7&_nc_sid=2d3e12&_nc_eui2=AeEL2Ow7HSU7HKECfSIX48PUmMSEW8y8K5OYxIRbzLwrk_fWAreFhsN4aFEzfGZ5OeGnbJ_bsFUXIA5VZuId3hhp&_nc_ohc=7kZ2LUIAz3MQ7kNvwE-OEK5&_nc_oc=AdoL2g3M1luLO5jeEK51bh1POlQ99VxTIsyDK1nk6ZCwrMSOmAydyi-mFUz3jWQCzmM&_nc_zt=24&_nc_ht=scontent.fhan5-11.fna&_nc_gid=AXmnVxB7ZjXqGCuoKfIviw&_nc_ss=7c2a8&oh=00_Af65cY1V_f1H7L-svPVSyCFm50umW4Ji9-Tv1Eeot_ZeSA&oe=6A143F3A";
 
 interface ShopCardProps {
   shop: {
     id: string;
     name: string;
     description?: string;
-    avatar: string;
+    avatar: ImageLike;
     coverBanner?: string;
     address?: string;
     followers?: string;
@@ -37,10 +41,7 @@ const ShopCard: React.FC<ShopCardProps> = ({ shop }) => {
       <div className="relative flex justify-center -mt-8">
         <div className="w-16 h-16 rounded-full border-4 border-white overflow-hidden shadow bg-white">
           <Image
-            src={
-              shop.avatar ||
-              "https://scontent.fhan5-11.fna.fbcdn.net/v/t39.30808-1/423693810_713409194268423_4424368522200979225_n.jpg?stp=dst-jpg_s200x200_tt6&_nc_cat=100&ccb=1-7&_nc_sid=2d3e12&_nc_eui2=AeEL2Ow7HSU7HKECfSIX48PUmMSEW8y8K5OYxIRbzLwrk_fWAreFhsN4aFEzfGZ5OeGnbJ_bsFUXIA5VZuId3hhp&_nc_ohc=7kZ2LUIAz3MQ7kNvwE-OEK5&_nc_oc=AdoL2g3M1luLO5jeEK51bh1POlQ99VxTIsyDK1nk6ZCwrMSOmAydyi-mFUz3jWQCzmM&_nc_zt=24&_nc_ht=scontent.fhan5-11.fna&_nc_gid=AXmnVxB7ZjXqGCuoKfIviw&_nc_ss=7c2a8&oh=00_Af65cY1V_f1H7L-svPVSyCFm50umW4Ji9-Tv1Eeot_ZeSA&oe=6A143F3A"
-            }
+            src={getImageUrl(shop.avatar, DEFAULT_SHOP_AVATAR)}
             alt={shop.name}
             width={64}
             height={64}

@@ -11,9 +11,8 @@ import React, { useEffect, useRef, useState } from "react";
 
 const Page = () => {
   const searchParams = useSearchParams();
-  const { user, isLoading: userLoading } = useRequiredAuth();
+  const { user } = useRequiredAuth();
   const router = useRouter();
-  const wsRef = useRef<WebSocket | null>(null);
   const messageContainerRef = useRef<HTMLDivElement | null>(null);
   const scrollAnchorRef = useRef<HTMLDivElement | null>(null);
   const queryClient = useQueryClient();
@@ -87,6 +86,52 @@ const Page = () => {
     }
   }, [conversationId, chats]);
 
+  useEffect(() => {
+    if (!ws) return;
+
+    ws.onmessage = (event: any) => {
+      const data = JSON.parse(event.data);
+      if (data.type === "NEW_MESSAGE") {
+        const newMsg = data?.payload;
+
+        if (newMsg?.conversationId === conversationId) {
+          queryClient.setQueryData(
+            ["messages", conversationId],
+            (old: any = []) => [
+              ...old,
+              {
+                content: newMsg.content,
+                senderType: newMsg.senderType,
+                seen: false,
+                createdAt: new Date().toISOString(),
+              },
+            ],
+          );
+          scrollToBottom();
+        }
+
+        setChats((prevChats) =>
+          prevChats.map((chat) =>
+            chat.conversationId === newMsg.conversationId
+              ? { ...chat, lastMessage: newMsg.content }
+              : chat,
+          ),
+        );
+      }
+
+      if(data.type==="UNSEEN_COUNT_UPDATE") {
+        const {conversationId, count}=data.payload;
+        setChats((prevChats) =>
+          prevChats.map((chat) =>
+            chat.conversationId===conversationId
+              ? {...chat, unreadCount: count}
+              :chat,
+          ),
+        );
+      }
+    };
+  }, [ws, queryClient]);
+
   const handleChatSelect = (chat: any) => {
     setHasFetchOnce(false);
     setChats((prev) =>
@@ -126,19 +171,6 @@ const Page = () => {
     };
 
     ws?.send(JSON.stringify(payload));
-
-    queryClient.setQueryData(
-      ["messages", selectedChat.conversationId],
-      (old: any = []) => [
-        ...old,
-        {
-          content: payload.messageBody,
-          senderType: payload.senderType,
-          seen: false,
-          createdAt: new Date().toISOString(),
-        },
-      ],
-    );
 
     setChats((prevChats) =>
       prevChats.map((chat) =>
@@ -201,9 +233,16 @@ const Page = () => {
                               <span className="w-2 h-2 rounded-full bg-green-500" />
                             )}
                           </div>
-                          <p className="text-xs text-gray-500 truncate max-w-[170px]">
-                            {getLastMessage(chat)}
-                          </p>
+                          <div className="flex items-center justify-between">
+                            <p className="text-xs text-gray-400 truncate max-w-[170px]">
+                              {getLastMessage(chat)}
+                            </p>
+                            {chat?.unreadCount > 0 && (
+                              <span className="ml-2 text-[10px] bg-blue-600 text-white">
+                                {chat?.unreadCount > 9? "9+" : chat?.unreadCount}
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </button>

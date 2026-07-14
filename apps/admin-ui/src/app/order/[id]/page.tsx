@@ -180,7 +180,7 @@ const page=() => {
               className="border border-gray-200 rounded-md p-4 flex items-center gap-4"
             >
               <img
-                src={item.product?.images[0]?.url||"/placeholder.png"}
+                src={item.product?.images[0]?.url||"https://ik.imagekit.io/bigwavehaibuithe/products/ShoppingCart.png?updatedAt=1757342740267"}
                 alt={item.product?.title||"Product Image"}
                 className="w-16 h-16 object-cover rounded-md border border-gray-200"
               />
