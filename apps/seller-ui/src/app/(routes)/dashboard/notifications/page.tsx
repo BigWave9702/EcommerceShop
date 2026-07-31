@@ -1,14 +1,15 @@
 "use client";
 import { useQuery } from "@tanstack/react-query";
-import Breadcrumb from "apps/admin-ui/src/shared/components/Breadcrumbs";
-import axiosInstance from "apps/admin-ui/src/utils/axiosInstance";
+import Breadcrumb from "apps/seller-ui/src/shared/components/Breadcrumbs";
+import axiosInstance from "apps/seller-ui/src/utils/axiosInstance";
 import Link from "next/link";
+import React from "react";
 
-export const Notifications = () => {
+const Page = () => {
   const { data, isLoading } = useQuery({
     queryKey: ["notifications"],
     queryFn: async () => {
-      const res = await axiosInstance.get("/admin/api/get-all-notifications");
+      const res = await axiosInstance.get("/seller/api/get-notifications");
       return res.data.notifications;
     },
   });
@@ -22,12 +23,12 @@ export const Notifications = () => {
   return (
     <div className="w-full min-h-screen p-8">
       <h2 className="text-2xl text-white font-semibold mb-2">Notifications</h2>
-      {/* Breadcrumbs */}
+
       <Breadcrumb title="Notifications" />
 
-      {!isLoading && data?.length === 0 && (
+      {!isLoading && data.length === 0 && (
         <p className="text-center pt-24 text-white text-sm font-Poppins">
-          No Notifications available yet!
+          No notifications available yet!
         </p>
       )}
 
@@ -36,7 +37,7 @@ export const Notifications = () => {
           {data.map((d: any) => (
             <Link
               key={d.id}
-              href={`${d.redirect_link}`}
+              href={d.redirect_link}
               className={`block px-5 py-4 transition ${
                 d.status !== "Unread"
                   ? "hover:bg-gray-800/40"
@@ -63,3 +64,5 @@ export const Notifications = () => {
     </div>
   );
 };
+
+export default Page;

@@ -201,9 +201,9 @@ const Dashboard = () => {
                   verticalAlign="bottom"
                   align="center"
                   iconType="circle"
-                  formatter={(value) => {
+                  formatter={(value) => (
                     <span className='text-white text-sm ml-1'>{value}</span>
-                  }}
+                  )}
                 />
               </PieChart>
             </ResponsiveContainer>

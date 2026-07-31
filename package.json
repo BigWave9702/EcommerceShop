@@ -9,7 +9,8 @@
     "order-docs": "node apps/order-service/src/swagger.js",
     "user-ui": "npx nx run-many --target=dev --all --projects=user-ui",
     "seller-ui": "npx nx run-many --target=dev --all --projects=seller-ui",
-    "admin-ui": "npx nx run-many --target=dev --all --projects=admin-ui"
+    "admin-ui": "npx nx run-many --target=dev --all --projects=admin-ui",
+    "build:ui": "npx nx run-many --target=build --projects=@./user-ui,@./seller-ui,@./admin-ui"
   },
   "private": true,
   "dependencies": {

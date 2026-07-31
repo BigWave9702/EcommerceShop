@@ -37,8 +37,6 @@ const restoreProduct=async (productId: string) => {
 
 const ProductList = () => {
   const [globalFilter, setGlobalFilter] = useState("");
-  const [analyticsData, setAnalyticsData] = useState(null);
-  const [showAnalytics, setShowAnalytics] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<any>();
 

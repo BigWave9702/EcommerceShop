@@ -257,7 +257,11 @@ export const updateUserPassword = async (req: any, res: Response, next: NextFunc
 export const getUser = async (req: any, res: Response, next: NextFunction) => {
   try {
     const user = req.user;
-
+    await sendLog({
+      type: "success",
+      message: `User data retrieved ${user?.email}`,
+      source: "auth-service",
+    })
     res.status(200).json({
       success: true,
       user,
@@ -690,7 +694,7 @@ export const getUserAddresses = async (
   }
 };
 
-export const loginAdmin = async(
+export const loginAdmin = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -758,5 +762,23 @@ export const loginAdmin = async(
     })
   } catch (error) {
     return next(error)
+  }
+}
+
+// fetch layout data
+export const getLayoutData=async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const layout=await prisma.site_config.findFirst();
+
+    res.status(200).json({
+      success: true,
+      layout
+    })
+  } catch (error) {
+    next(error);
   }
 }

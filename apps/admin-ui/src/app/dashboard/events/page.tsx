@@ -4,7 +4,7 @@ import axiosInstance from 'apps/admin-ui/src/utils/axiosInstance';
 import React, {useDeferredValue, useMemo, useState} from 'react'
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronRight, Download, Plus, Search } from "lucide-react";
+import { Download, Search } from "lucide-react";
 import { getCoreRowModel, getSortedRowModel, getFilteredRowModel, flexRender, useReactTable } from '@tanstack/react-table';
 import { saveAs } from 'file-saver';
 import Breadcrumb from 'apps/admin-ui/src/shared/components/Breadcrumbs';
@@ -12,7 +12,7 @@ import Breadcrumb from 'apps/admin-ui/src/shared/components/Breadcrumbs';
 const EventsPage=() => {
   const [globalFilter, setGlobalFilter]=useState("");
   const deferredFilter=useDeferredValue(globalFilter);
-  const [page, setPage]=useState(1);
+  const page=1;
   const limit=10;
 
   const { data, isLoading }: UseQueryResult<any> = useQuery({
@@ -36,8 +36,6 @@ const EventsPage=() => {
         .includes(deferredFilter.toLowerCase())
     );
   }, [allEvents, deferredFilter]);
-
-  const totalPages = Math.ceil((data?.meta.totalEvents ?? 0) / limit);
 
   const columns=useMemo(() => [
     {

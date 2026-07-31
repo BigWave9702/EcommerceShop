@@ -6,12 +6,14 @@ import HeaderBottom from "./header-bottom";
 import useUser from "apps/user-ui/src/hooks/useUser";
 import axiosInstance from "apps/user-ui/src/utils/axiosInstance";
 import {useStore} from "apps/user-ui/src/store";
+import useLayout from "apps/user-ui/src/hooks/useLayout";
+import Image from "next/image";
 
 const Header=() => {
   const {user, isLoading}=useUser();
   const wishlist=useStore((state: any) => state.wishlist);
   const cart=useStore((state: any) => state.cart);
-
+  const {layout}=useLayout();
   const [searchQuery, setSearchQuery]=useState("");
   const [suggestions, setSuggestions]=useState<any[]>([]);
   const [loadingSuggestions, setLoadingSuggestions]=useState(false);
@@ -36,7 +38,13 @@ const Header=() => {
       <div className="w-[80%] py-5 m-auto flex items-center justify-between">
         <div>
           <Link href={"/"}>
-            <span className="text-3xl font-[500]">Eshop</span>
+            <Image
+              src={layout?.logo}
+              width={100}
+              height={100}
+              alt=""
+              className="h-[70px] ml-[-50px] mb-[-30px] object-cover"
+            />
           </Link>
         </div>
         {/* Search */}

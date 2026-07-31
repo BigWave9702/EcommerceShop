@@ -12,7 +12,7 @@ const ChatPage = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const messageContainerRef = useRef<HTMLDivElement | null>(null);
-  const { seller, isLoading: userLoading } = useSeller();
+  const { seller } = useSeller();
   const conversationId = searchParams.get("conversationId");
   const { ws } = useWebSocket();
   const queryClient = useQueryClient();

@@ -10,7 +10,7 @@ import {flexRender, getCoreRowModel, getFilteredRowModel, useReactTable} from '@
 const Page=() => {
   const [globalFilter, setGlobalFilter]=useState("");
   const deferredFilter=useDeferredValue(globalFilter);
-  const [page, setPage]=useState(1);
+  const page=1;
   const limit=10;
 
   const { data, isLoading }: UseQueryResult<any> = useQuery({
@@ -34,8 +34,6 @@ const Page=() => {
         .includes(deferredFilter.toLowerCase())
     );
   }, [allProducts, deferredFilter]);
-
-  const totalPages = Math.ceil((data?.meta.totalProducts ?? 0) / limit);
 
   const columns=useMemo(() => [
     {

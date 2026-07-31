@@ -1,7 +1,7 @@
 "use client";
 import axiosInstance from "apps/admin-ui/src/utils/axiosInstance";
-import {ArrowLeft, Loader2} from "lucide-react";
-import {useParams, useRouter} from "next/navigation";
+import {Loader2} from "lucide-react";
+import {useParams} from "next/navigation";
 import React, {useEffect, useState} from "react";
 
 const statuses=[

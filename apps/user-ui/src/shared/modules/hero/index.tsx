@@ -1,4 +1,5 @@
 "use client"
+import useLayout from 'apps/user-ui/src/hooks/useLayout'
 import {MoveRight} from 'lucide-react'
 import Image from 'next/image'
 import {useRouter} from 'next/navigation'
@@ -6,6 +7,7 @@ import React from 'react'
 
 const Hero=() => {
   const router=useRouter();
+  const {layout}=useLayout();
 
   return (
     <div className='bg-[#115061] h-[85vh] flex flex-col justify-center w-full'>
@@ -29,7 +31,7 @@ const Hero=() => {
         </div>
         <div className='md:w-1/2 flex justify-center'>
           <Image
-            src={"https://ik.imagekit.io/bigwavehaibuithe/products/ShoppingCart.png?updatedAt=1757342740267"}
+            src={layout?.banner || "https://ik.imagekit.io/bigwavehaibuithe/products/ShoppingCart.png?updatedAt=1757342740267"}
             alt=''
             width={450}
             height={450}

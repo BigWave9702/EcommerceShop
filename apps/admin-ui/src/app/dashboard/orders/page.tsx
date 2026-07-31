@@ -9,7 +9,7 @@ import Link from 'next/link'
 import Breadcrumbs from "apps/admin-ui/src/shared/components/Breadcrumbs";
 import axiosInstance from "apps/admin-ui/src/utils/axiosInstance";
 import { Eye, Search } from "lucide-react";
-import { useQuery } from "node_modules/@tanstack/react-query/build/modern/_tsup-dts-rollup";
+import { useQuery } from "@tanstack/react-query";
 import React, { useMemo, useState } from "react";
 
 const fetchOrders = async () => {
