@@ -1,0 +1,16 @@
+import prisma from "@packages/libs/prisma"
+
+
+export const fetchUserActivity = async (userId: string) => {
+  try {
+    const userActivity=await prisma.userAnalytics.findUnique({
+      where: {userId},
+      select: {actions: true}
+    });
+
+    return userActivity?.actions || [];
+  } catch (error) {
+    console.log("Error fetching user activity", error);
+    return [];
+  }
+}
