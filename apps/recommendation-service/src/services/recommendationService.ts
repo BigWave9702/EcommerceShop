@@ -1,5 +1,5 @@
 import * as tf from '@tensorflow/tfjs';
-import {fetchUserActivity} from './fetch-user-activity';
+import { getUserActivity } from "./fetch-user-activity";
 import {preProcessData} from '../utils/preProcessData';
 
 const EMBEDDING_DIM=50;
@@ -21,13 +21,13 @@ interface RecommendedProduct {
   score: number;
 }
 
-async function getUserActivity(userId: string): Promise<UserAction[]> {
-  const userActions = await fetchUserActivity(userId);
+async function fetchUserActivity(userId: string): Promise<UserAction[]> {
+  const userActions = await getUserActivity(userId);
   return Array.isArray(userActions) ? (userActions as unknown as UserAction[]) : [];
 }
 
 export const recommendProducts=async (userId: string, allProducts: any[]): Promise<string[]> => {
-  const userActions=await getUserActivity(userId);
+  const userActions = await fetchUserActivity(userId);
   if(userActions.length===0) return [];
 
   const processedData=preProcessData(userActions, allProducts);
