@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx nx show projects)",
+      "Bash(npx nx show project *)",
+      "Bash(npx nx serve *)",
+      "Bash(npx nx test *)",
+      "Bash(npx nx lint *)",
+      "Bash(npx nx build *)",
+      "Bash(npx nx typecheck *)",
+      "Bash(npx nx affected *)",
+      "Bash(npx nx reset)",
+      "Bash(npx prisma generate)",
+      "Bash(npx prisma validate)",
+      "Bash(npm run dev)",
+      "Bash(npm run user-ui)",
+      "Bash(npm run seller-ui)",
+      "Bash(npm run admin-ui)",
+      "Bash(npm run build:ui)",
+      "Bash(npm run build:backend)",
+      "Bash(git status)",
+      "Bash(git diff *)",
+      "Bash(git log *)"
+    ]
+  }
+}

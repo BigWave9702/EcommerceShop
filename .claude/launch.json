@@ -1,0 +1,29 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "user-ui",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "user-ui"],
+      "port": 3000
+    },
+    {
+      "name": "seller-ui",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "seller-ui"],
+      "port": 3001
+    },
+    {
+      "name": "admin-ui",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "admin-ui"],
+      "port": 3002
+    },
+    {
+      "name": "api-gateway",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["nx", "serve", "@./api-gateway"],
+      "port": 3333
+    }
+  ]
+}
