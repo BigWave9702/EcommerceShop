@@ -44,6 +44,9 @@
     },
     {
       "path": "./apps/seller-service"
+    },
+    {
+      "path": "./apps/user-service"
     }
   ]
 }

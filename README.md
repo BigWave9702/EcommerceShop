@@ -60,12 +60,12 @@ Replace these placeholders with real seeded accounts when your deployment is rea
                       |
                   API Gateway
                       |
-  ------------------------------------------------
-  |        |          |          |        |       |
- Auth   Product    Seller     Order    Chat    Admin
- Service Service   Service    Service  Service Service
-  |        |          |          |        |       |
-  ---------------- Shared Packages ----------------
+  ----------------------------------------------------------
+  |        |        |          |          |        |       |
+ Auth    User    Product    Seller     Order    Chat    Admin
+ Service Service Service    Service    Service  Service Service
+  |        |        |          |          |        |       |
+  ------------------- Shared Packages ----------------------
          Prisma | Redis | Kafka | ImageKit | Errors
                       |
              MongoDB / Redis / Kafka
@@ -95,6 +95,7 @@ apps/
   admin-ui                Admin dashboard UI
   api-gateway             API gateway/proxy
   auth-service            Registration, login, authentication
+  user-service            Logged-in user profile, addresses, password change
   product-service         Products, shops, events, discount codes
   seller-service          Seller/shop APIs
   order-service           Cart, orders, payments, webhooks
@@ -172,6 +173,7 @@ admin-service           6005
 chatting-service        6006
 recommendation-service  6007
 logger-service          6008
+user-service            6009
 ```
 
 Each service can be overridden with the `PORT` environment variable.
@@ -237,7 +239,7 @@ npm run build:backend
 Stable PowerShell command for the full build:
 
 ```powershell
-$env:NX_DAEMON='false'; $env:NX_NO_CLOUD='true'; npx nx run-many --target=build --projects="@./user-ui,@./seller-ui,@./admin-ui,auth-service,@./api-gateway,@./product-service,@./seller-service,@./order-service,@./chatting-service,@./admin-service,@./kafka-service,@./logger-service,@./recomendation-service"
+$env:NX_DAEMON='false'; $env:NX_NO_CLOUD='true'; npx nx run-many --target=build --projects="@./user-ui,@./seller-ui,@./admin-ui,auth-service,@./api-gateway,@./product-service,@./seller-service,@./order-service,@./chatting-service,@./admin-service,@./kafka-service,@./logger-service,@./recomendation-service,@./user-service"
 ```
 
 ## Verified Build Status

@@ -17,7 +17,7 @@ const ChangePassword = () => {
     setError("")
     setMessage("")
     try {
-      const res=await axiosInstance.post("/api/change-password", {
+      const res=await axiosInstance.post("/user/api/change-password", {
         currentPassword: data.currentPassword,
         newPassword: data.newPassword,
         confirmPassword: data.confirmPassword,

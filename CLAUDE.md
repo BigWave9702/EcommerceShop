@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 EcommerceShop is a multi-vendor ecommerce platform built as an Nx monorepo: three independent Next.js frontends (buyer, seller, admin), a set of Express/Node microservices behind an API gateway, and shared packages for Prisma, Redis, Kafka, ImageKit, and error handling. Backend data lives in MongoDB via Prisma; Redis backs sessions/cache; Kafka carries analytics/events.
 
 ```
-Buyer/Seller/Admin UI -> API Gateway -> Auth/Product/Seller/Order/Chat/Admin/Recommendation/Kafka/Logger services -> shared packages (Prisma, Redis, Kafka, ImageKit, error-handler) -> MongoDB/Redis/Kafka
+Buyer/Seller/Admin UI -> API Gateway -> Auth/User/Product/Seller/Order/Chat/Admin/Recommendation/Kafka/Logger services -> shared packages (Prisma, Redis, Kafka, ImageKit, error-handler) -> MongoDB/Redis/Kafka
 ```
 
 Project names in Nx sometimes carry an `@./` prefix (e.g. `@./api-gateway`, `@./product-service`) instead of the plain folder name — check `npx nx show projects` if a `nx` command can't find a project by its directory name.
@@ -49,7 +49,7 @@ npx nx affected -t lint test build
 
 Full build (matches CI/`npm run build:ui` + `build:backend`; use this exact form on Windows because `@`-prefixed project names break unquoted argument parsing):
 ```powershell
-$env:NX_DAEMON='false'; $env:NX_NO_CLOUD='true'; npx nx run-many --target=build --projects="@./user-ui,@./seller-ui,@./admin-ui,auth-service,@./api-gateway,@./product-service,@./seller-service,@./order-service,@./chatting-service,@./admin-service,@./kafka-service,@./logger-service,@./recomendation-service"
+$env:NX_DAEMON='false'; $env:NX_NO_CLOUD='true'; npx nx run-many --target=build --projects="@./user-ui,@./seller-ui,@./admin-ui,auth-service,@./api-gateway,@./product-service,@./seller-service,@./order-service,@./chatting-service,@./admin-service,@./kafka-service,@./logger-service,@./recomendation-service,@./user-service"
 ```
 
 Other useful commands:
@@ -71,7 +71,11 @@ npx nx reset                      # clear Nx cache/daemon when things behave odd
 
 ## Environment
 
-Services/UIs read config from a root `.env` (see [README.md](README.md) for the full variable list: `DATABASE_URL`, `REDIS_DATABASE_URL`, token secrets, ImageKit, SMTP, Stripe, Kafka, and `NEXT_PUBLIC_*` frontend URLs). Default local ports: api-gateway 3333, auth 6001, product 6002, seller 6003, order 6004, admin 6005, chatting 6006, recommendation 6007, logger 6008 (override via `PORT`).
+Services/UIs read config from a root `.env` (see [README.md](README.md) for the full variable list: `DATABASE_URL`, `REDIS_DATABASE_URL`, token secrets, ImageKit, SMTP, Stripe, Kafka, and `NEXT_PUBLIC_*` frontend URLs). Default local ports: api-gateway 3333, auth 6001, product 6002, seller 6003, order 6004, admin 6005, chatting 6006, recommendation 6007, logger 6008, user 6009 (override via `PORT`).
+
+## Service split: auth-service vs user-service
+
+`auth-service` owns authentication mechanics only (registration/login/verify/refresh-token/forgot-reset-password for user/seller/admin, shop creation, Stripe connect link, site layout data). `user-service` (port 6009, proxied by api-gateway at `/user`) owns the logged-in user's own profile/data: `GET /api/logged-in-user`, `POST /api/change-password`, `GET /api/shipping-addresses`, `POST /api/add-address`, `DELETE /api/delete-address/:addressId`. Both share the same `isAuthenticated` middleware and the same `users`/`address` Prisma models — a new "manage my own account" endpoint belongs in `user-service`; a new "prove who I am" endpoint belongs in `auth-service`.
 
 ## Known environment quirks (see README "Common Issues" for details)
 
