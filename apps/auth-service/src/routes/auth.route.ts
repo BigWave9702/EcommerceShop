@@ -7,6 +7,7 @@ import {
   loginAdmin,
   loginSeller,
   loginUser,
+  logout,
   refreshToken,
   registerSeller,
   resetUserPassword,
@@ -25,6 +26,7 @@ router.post("/user-registration", userRegistration);
 router.post("/verify-user", verifyUser);
 router.post("/login-user", loginUser);
 router.post("/refresh-token", refreshToken);
+router.post("/logout", logout);
 router.post("/forgot-password-user", userForgotPassword);
 router.post("/reset-password-user", resetUserPassword);
 router.post("/verify-forgot-password-user", verifyForgotPassword);

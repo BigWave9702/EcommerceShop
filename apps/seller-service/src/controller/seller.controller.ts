@@ -13,6 +13,56 @@ export const deleteShop = async (
   }
 };
 
+// update shop profile
+export const updateShop = async (
+  req: any,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const sellerId = req.seller?.id;
+
+    const {
+      name,
+      bio,
+      category,
+      address,
+      opening_hours,
+      website,
+      socialLinks,
+      coverBanner,
+    } = req.body;
+
+    const shop = await prisma.shops.findUnique({ where: { sellerId } });
+
+    if (!shop) {
+      return next(new ValidationError("Shop not found for this seller!"));
+    }
+
+    const updatedShop = await prisma.shops.update({
+      where: { sellerId },
+      data: {
+        ...(name !== undefined && { name }),
+        ...(bio !== undefined && { bio }),
+        ...(category !== undefined && { category }),
+        ...(address !== undefined && { address }),
+        ...(opening_hours !== undefined && { opening_hours }),
+        ...(website !== undefined && { website }),
+        ...(socialLinks !== undefined && { socialLinks }),
+        ...(coverBanner !== undefined && { coverBanner }),
+      },
+      include: { avatar: true },
+    });
+
+    res.status(200).json({
+      success: true,
+      shop: updatedShop,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // restore shop
 export const restoreShop = async (
   req: any,
@@ -66,9 +116,19 @@ export const markNotificationAsRead = async (
 ) => {
   try {
     const { notificationId } = req.body;
+    const sellerId = req.seller?.id;
 
     if (!notificationId) {
       return next(new ValidationError("Notification id is required!"));
+    }
+
+    const existingNotification = await prisma.notifications.findUnique({
+      where: { id: notificationId },
+      select: { id: true, receiverId: true },
+    });
+
+    if (!existingNotification || existingNotification.receiverId !== sellerId) {
+      return next(new ValidationError("Notification not found or unauthorized"));
     }
 
     const notification = await prisma.notifications.update({

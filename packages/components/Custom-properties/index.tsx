@@ -3,10 +3,10 @@ import { Controller } from "react-hook-form";
 import Input from "../input";
 import { Plus, X } from "lucide-react";
 
-const CustomProperties = ({ control, errors }: any) => {
+const CustomProperties = ({ control, errors, initialValue }: any) => {
   const [properties, setProperties] = useState<
     { label: string; values: string[] }[]
-  >([]);
+  >(initialValue || []);
 
   const [newLabel, setNewLabel] = useState("");
   const [newValue, setNewValue] = useState("");

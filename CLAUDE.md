@@ -73,6 +73,10 @@ npx nx reset                      # clear Nx cache/daemon when things behave odd
 
 Services/UIs read config from a root `.env` (see [README.md](README.md) for the full variable list: `DATABASE_URL`, `REDIS_DATABASE_URL`, token secrets, ImageKit, SMTP, Stripe, Kafka, and `NEXT_PUBLIC_*` frontend URLs). Default local ports: api-gateway 3333, auth 6001, product 6002, seller 6003, order 6004, admin 6005, chatting 6006, recommendation 6007, logger 6008, user 6009 (override via `PORT`).
 
+## Seller product/event pages share one form
+
+`apps/seller-ui/src/shared/modules/product/product-form.tsx` backs `dashboard/create-product`, `dashboard/create-event`, and `product/edit/[id]` via a `mode` prop (`"create" | "edit" | "event"`). An "event" is not a separate Prisma model — it's a `products` row with `starting_date`/`ending_date` set, so create/event both POST to `product-service`'s `/create-product`; edit PUTs to `/update-product/:productId`. Editing a product fetches it via `GET /get-shop-product/:productId` (seller-scoped, ownership-checked) rather than reusing the public slug-based lookup. When adding a new product field, wire it through this shared form once rather than the three pages.
+
 ## Service split: auth-service vs user-service
 
 `auth-service` owns authentication mechanics only (registration/login/verify/refresh-token/forgot-reset-password for user/seller/admin, shop creation, Stripe connect link, site layout data). `user-service` (port 6009, proxied by api-gateway at `/user`) owns the logged-in user's own profile/data: `GET /api/logged-in-user`, `POST /api/change-password`, `GET /api/shipping-addresses`, `POST /api/add-address`, `DELETE /api/delete-address/:addressId`. Both share the same `isAuthenticated` middleware and the same `users`/`address` Prisma models — a new "manage my own account" endpoint belongs in `user-service`; a new "prove who I am" endpoint belongs in `auth-service`.

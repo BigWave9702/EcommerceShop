@@ -14,9 +14,11 @@ import {
   getFilteredShops,
   getProductDetails,
   getProducts,
+  getShopProductById,
   restoreProduct,
   searchProducts,
   topShops,
+  updateProduct,
   uploadProductImage,
 } from "../controllers/product.controller";
 import isAuthenticated from "@packages/middleware/isAuthenticated";
@@ -31,7 +33,9 @@ router.post("/upload-product-image", isAuthenticated, uploadProductImage);
 router.delete("/delete-product-image", isAuthenticated, deleteProductImage);
 //CRUD Product
 router.post("/create-product", isAuthenticated, createProduct);
+router.put("/update-product/:productId", isAuthenticated, updateProduct);
 router.get("/get-shop-products", isAuthenticated, getProducts);
+router.get("/get-shop-product/:productId", isAuthenticated, getShopProductById);
 router.delete("/delete-product/:productId", isAuthenticated, deleteProduct);
 router.put("/restore-product/:productId", isAuthenticated, restoreProduct);
 router.get("/get-all-products", getAllProducts);

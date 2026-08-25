@@ -11,7 +11,6 @@ import axiosInstance from "apps/seller-ui/src/utils/axiosInstance";
 import Image from "next/image";
 import Link from "next/link";
 import {
-  BarChart,
   ChevronRight,
   Eye,
   Pencil,
@@ -148,9 +147,6 @@ const ProductList = () => {
           >
             <Pencil size={18} />
           </Link>
-          <button className="text-green-400 hover:text-green-300 transition">
-            <BarChart size={18} />
-          </button>
           <button className="text-red-400 hover:text-red-300 transition" onClick={() => openDeleteModal(row.original)}>
             <Trash size={18} />
           </button>

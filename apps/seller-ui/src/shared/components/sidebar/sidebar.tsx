@@ -1,8 +1,10 @@
 "use client";
 import useSeller from "apps/seller-ui/src/hooks/useSeller";
 import useSidebar from "apps/seller-ui/src/hooks/useSidebar";
-import { usePathname } from "next/navigation";
-import React, { useEffect } from "react";
+import axiosInstance from "apps/seller-ui/src/utils/axiosInstance";
+import { useQueryClient } from "@tanstack/react-query";
+import { usePathname, useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
 import Box from "../box";
 import { Sidebar } from "./sidebar.styles";
 import Link from "next/link";
@@ -14,7 +16,10 @@ import SidebarMenu from "./sidebar.menu";
 const SidebarBarWrapper = () => {
   const { activeSidebar, setActiveSidebar } = useSidebar();
   const pathName = usePathname();
+  const router = useRouter();
+  const queryClient = useQueryClient();
   const { seller } = useSeller();
+  const [loggingOut, setLoggingOut] = useState(false);
 
   useEffect(() => {
     setActiveSidebar(pathName);
@@ -22,6 +27,19 @@ const SidebarBarWrapper = () => {
 
   const getIconColor = (route: string) =>
     activeSidebar === route ? "#0085ff" : "#969696";
+
+  const handleLogout = async () => {
+    if (loggingOut) return;
+    setLoggingOut(true);
+    try {
+      await axiosInstance.post("/api/logout");
+    } catch (error) {
+      console.log(error);
+    } finally {
+      queryClient.clear();
+      router.push("/login");
+    }
+  };
 
   return (
     <Box
@@ -129,12 +147,17 @@ const SidebarBarWrapper = () => {
                 href="/dashboard/discount-codes"
                 icon={<TicketPercent size={24} color={getIconColor("/dashboard/discount-codes")} />}
               />
-              <SidebarItem
-                title="Logout"
-                isActive={activeSidebar==="/logout"}
-                href="/"
-                icon={<LogOut size={24} color={getIconColor("/logout")} />}
-              />
+              <button
+                type="button"
+                onClick={handleLogout}
+                disabled={loggingOut}
+                className="my-1 flex gap-2 w-full min-h-10 h-full items-center px-[13px] rounded-lg cursor-pointer transition hover:bg-[#2b2f31] disabled:opacity-60"
+              >
+                <LogOut size={24} color={getIconColor("/logout")} />
+                <h5 className="text-slate-200 text-base">
+                  {loggingOut ? "Logging out..." : "Logout"}
+                </h5>
+              </button>
             </SidebarMenu>
           </div>
         </Sidebar.Body>

@@ -1,4 +1,8 @@
-import { AuthenticationError, ValidationError } from "@packages/error-handler";
+import {
+  AuthenticationError,
+  NotFoundError,
+  ValidationError,
+} from "@packages/error-handler";
 import { imagekit } from "@packages/libs/imageKit";
 import prisma from "@packages/libs/prisma";
 import { Prisma } from "@prisma/client";
@@ -197,6 +201,8 @@ export const createProduct = async (
       subCategory,
       customProperties = {},
       images = [],
+      starting_date,
+      ending_date,
     } = req.body;
 
     console.log(req.seller.id);
@@ -218,6 +224,22 @@ export const createProduct = async (
 
     if (!req.seller.id) {
       return next(new AuthenticationError("Only seller can create products!"));
+    }
+
+    if ((starting_date && !ending_date) || (!starting_date && ending_date)) {
+      return next(
+        new ValidationError(
+          "Both starting_date and ending_date are required for an event!"
+        )
+      );
+    }
+
+    if (
+      starting_date &&
+      ending_date &&
+      new Date(ending_date) <= new Date(starting_date)
+    ) {
+      return next(new ValidationError("ending_date must be after starting_date!"));
     }
 
     const slugChecking = await prisma.products.findUnique({
@@ -254,6 +276,8 @@ export const createProduct = async (
         regular_price: parseFloat(regular_price),
         custom_properties: customProperties || {},
         custom_specifications: custom_specifications || {},
+        starting_date: starting_date ? new Date(starting_date) : null,
+        ending_date: ending_date ? new Date(ending_date) : null,
         images: {
           create: images
             .filter((img: any) => img && img.fileId && img.file_url)
@@ -293,6 +317,37 @@ export const getProducts = async (
     res.status(201).json({
       success: true,
       products,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// get a single product owned by the logged-in seller (for the edit form)
+export const getShopProductById = async (
+  req: any,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { productId } = req.params;
+
+    const product = await prisma.products.findUnique({
+      where: { id: productId },
+      include: { images: true },
+    });
+
+    if (!product) {
+      return next(new NotFoundError("Product not found!"));
+    }
+
+    if (product.shopId !== req.seller?.shop?.id) {
+      return next(new ValidationError("Unauthorized action"));
+    }
+
+    res.status(200).json({
+      success: true,
+      product,
     });
   } catch (error) {
     next(error);
@@ -386,6 +441,134 @@ export const restoreProduct = async (
     });
   } catch (error) {
     return res.status(500).json({ message: "Error restoring product", error });
+  }
+};
+
+//Update product
+export const updateProduct = async (
+  req: any,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { productId } = req.params;
+    const sellerShopId = req.seller?.shop?.id;
+
+    const {
+      title,
+      short_description,
+      detailed_description,
+      warranty,
+      custom_specifications,
+      slug,
+      tags,
+      cash_on_delivery,
+      brand,
+      video_url,
+      category,
+      colors,
+      sizes,
+      discountCodes,
+      stock,
+      sale_price,
+      regular_price,
+      subCategory,
+      customProperties,
+      starting_date,
+      ending_date,
+    } = req.body;
+
+    const existingProduct = await prisma.products.findUnique({
+      where: { id: productId },
+      select: { id: true, shopId: true, slug: true },
+    });
+
+    if (!existingProduct) {
+      return next(new NotFoundError("Product not found!"));
+    }
+
+    if (existingProduct.shopId !== sellerShopId) {
+      return next(new ValidationError("Unauthorized action"));
+    }
+
+    if (slug && slug !== existingProduct.slug) {
+      const slugChecking = await prisma.products.findUnique({
+        where: { slug },
+      });
+
+      if (slugChecking) {
+        return next(
+          new ValidationError(
+            "Slug already exist! Please use a different slug!"
+          )
+        );
+      }
+    }
+
+    if ((starting_date && !ending_date) || (!starting_date && ending_date)) {
+      return next(
+        new ValidationError(
+          "Both starting_date and ending_date are required for an event!"
+        )
+      );
+    }
+
+    if (
+      starting_date &&
+      ending_date &&
+      new Date(ending_date) <= new Date(starting_date)
+    ) {
+      return next(new ValidationError("ending_date must be after starting_date!"));
+    }
+
+    const updatedProduct = await prisma.products.update({
+      where: { id: productId },
+      data: {
+        ...(title !== undefined && { title }),
+        ...(short_description !== undefined && { short_description }),
+        ...(detailed_description !== undefined && { detailed_description }),
+        ...(warranty !== undefined && { warranty }),
+        ...(cash_on_delivery !== undefined && {
+          cashOnDelivery: cash_on_delivery,
+        }),
+        ...(slug !== undefined && { slug }),
+        ...(tags !== undefined && {
+          tags: Array.isArray(tags) ? tags : tags.split(","),
+        }),
+        ...(brand !== undefined && { brand }),
+        ...(video_url !== undefined && { video_url }),
+        ...(category !== undefined && { category }),
+        ...(subCategory !== undefined && { subCategory }),
+        ...(colors !== undefined && { colors }),
+        ...(sizes !== undefined && { sizes }),
+        ...(discountCodes !== undefined && {
+          discount_codes: discountCodes.map((codeId: string) => codeId),
+        }),
+        ...(stock !== undefined && { stock: parseInt(stock) }),
+        ...(sale_price !== undefined && { sale_price: parseFloat(sale_price) }),
+        ...(regular_price !== undefined && {
+          regular_price: parseFloat(regular_price),
+        }),
+        ...(customProperties !== undefined && {
+          custom_properties: customProperties,
+        }),
+        ...(custom_specifications !== undefined && { custom_specifications }),
+        ...(starting_date !== undefined && {
+          starting_date: starting_date ? new Date(starting_date) : null,
+        }),
+        ...(ending_date !== undefined && {
+          ending_date: ending_date ? new Date(ending_date) : null,
+        }),
+      },
+      include: { images: true },
+    });
+
+    res.status(200).json({
+      success: true,
+      updatedProduct,
+    });
+  } catch (error) {
+    next(error);
   }
 };
 

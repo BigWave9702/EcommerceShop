@@ -142,6 +142,30 @@ export const loginUser = async (
   }
 };
 
+//logout (clears every role's auth cookies)
+export const logout = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const clearOptions = {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none" as const,
+    };
+
+    res.clearCookie("access_token", clearOptions);
+    res.clearCookie("refresh_token", clearOptions);
+    res.clearCookie("seller-access-token", clearOptions);
+    res.clearCookie("seller-refresh-token", clearOptions);
+
+    res.status(200).json({ success: true, message: "Logged out successfully!" });
+  } catch (error) {
+    next(error);
+  }
+};
+
 //refresh token
 export const refreshToken = async (
   req: any,
