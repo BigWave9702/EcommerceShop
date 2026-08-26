@@ -30,7 +30,7 @@ router.get(
   getOrderDetails,
 );
 router.put("/update-status/:orderId", isAuthenticated, isSeller, updateDeliveryStatus);
-router.put("/verify-coupon", isAuthenticated, verifyCouponCode);
+router.put("/verify-coupon", verifyCouponCode);
 router.get("/get-user-orders", isAuthenticated, getUserOrders);
 router.get(
   "/get-admin-orders",

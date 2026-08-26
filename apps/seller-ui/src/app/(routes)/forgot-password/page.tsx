@@ -16,11 +16,11 @@ type FormData = {
 const ForgotPassword = () => {
   const [step, setStep] = useState<"email" | "otp" | "reset">("email");
   const [otp, setOtp] = useState(["", "", "", ""]);
-  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [sellerEmail, setSellerEmail] = useState<string | null>(null);
   const [canResend, setCanResend] = useState(true);
   const [timer, setTimer] = useState(60);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-  const [serverError, setServerError]=useState<string|null>(null);
+  const [serverError, setServerError] = useState<string | null>(null);
   const [passwordVisible, setPasswordVisible] = useState(false);
 
   const router = useRouter();
@@ -50,7 +50,7 @@ const ForgotPassword = () => {
     mutationFn: async ({ email }: { email: string }) => {
       if (!email) return;
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_SERVER_URI}/api/forgot-password-user`,
+        `${process.env.NEXT_PUBLIC_SERVER_URI}/api/forgot-password-seller`,
         {
           email,
         }
@@ -58,7 +58,7 @@ const ForgotPassword = () => {
       return response.data;
     },
     onSuccess: (_, { email }) => {
-      setUserEmail(email);
+      setSellerEmail(email);
       setStep("otp");
       setServerError(null);
       setCanResend(false);
@@ -74,11 +74,11 @@ const ForgotPassword = () => {
 
   const verifyOtpMutation = useMutation({
     mutationFn: async () => {
-      if (!userEmail) return;
+      if (!sellerEmail) return;
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_SERVER_URI}/api/verify-forgot-password-user`,
+        `${process.env.NEXT_PUBLIC_SERVER_URI}/api/verify-forgot-password-seller`,
         {
-          email: userEmail,
+          email: sellerEmail,
           otp: otp.join(""),
         }
       );
@@ -101,8 +101,8 @@ const ForgotPassword = () => {
       if (!password) return;
 
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_SERVER_URI}/api/reset-password-user`,
-        { email: userEmail, newPassword: password }
+        `${process.env.NEXT_PUBLIC_SERVER_URI}/api/reset-password-seller`,
+        { email: sellerEmail, newPassword: password }
       );
 
       return response.data;
@@ -166,7 +166,7 @@ const ForgotPassword = () => {
           {step === "email" && (
             <>
               <h3 className="text-3xl font-semibold text-center mb-2">
-                Login to Eshop
+                Seller Login
               </h3>
               <p className="text-center text-gray-500 mb-4">
                 Don't have an account?{" "}
@@ -243,7 +243,7 @@ const ForgotPassword = () => {
                   <button
                     type="button"
                     className="text-blue-500 cursor-pointer"
-                    onClick={() => requestOtpMutation.mutate({ email: userEmail! })}
+                    onClick={() => requestOtpMutation.mutate({ email: sellerEmail! })}
                   >
                     Resend OTP
                   </button>
@@ -251,13 +251,13 @@ const ForgotPassword = () => {
                   `Resend OTP in ${timer}s`
                 )}
               </p>
-              {serverError&&(
+              {serverError && (
                 <p className="text-red-500 text-sm text-center mt-2">{serverError}</p>
               )}
             </>
           )}
 
-          {step==="reset"&&(
+          {step === "reset" && (
             <>
               <h3 className="text-3xl font-semibold text-center mb-2">
                 Reset Password

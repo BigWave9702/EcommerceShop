@@ -3,9 +3,11 @@ import cors from "cors";
 import proxy from "express-http-proxy";
 import morgan from "morgan";
 import rateLimit, { ipKeyGenerator } from "express-rate-limit";
+import swaggerUi from "swagger-ui-express";
 
 import cookieParser from "cookie-parser";
 import initializeSiteConfig from "./libs/initializeSiteConfig";
+import { openApiSpec } from "./docs/openapi";
 
 const app = express();
 
@@ -25,6 +27,17 @@ app.set("trust proxy", 1);
 
 app.get("/gateway-health", (req, res) => {
   res.send({ message: "Welcome to api-gateway!" });
+});
+
+//Unified API docs — must be registered before the proxy routes below,
+//otherwise "/" catch-all (-> auth-service) would swallow these paths first.
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(openApiSpec, { customSiteTitle: "EcommerceShop API Docs" })
+);
+app.get("/docs-json", (req, res) => {
+  res.json(openApiSpec);
 });
 
 //Apply rate limiting (skipped outside production so local dev — with its

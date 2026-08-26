@@ -24,7 +24,8 @@ const CreateShop = ({
     mutationFn: async (data: FormData) => {
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_SERVER_URI}/api/create-shop`,
-        data
+        data,
+        { withCredentials: true }
       );
       return response.data;
     },
@@ -34,8 +35,7 @@ const CreateShop = ({
   });
 
   const onSubmit = async (data: any) => {
-    const shopData = { ...data, sellerId };
-    shopCreateMutation.mutate(shopData);
+    shopCreateMutation.mutate(data);
   };
 
   const countWords = (text: string) => text.trim().split(/\s+/).length;

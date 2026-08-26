@@ -1,9 +1,12 @@
 "use client";
 import React, { useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 import { Toaster } from "sonner";
 import useUser from "../hooks/useUser";
 import { WebSocketProvider } from "../context/web-socket-context";
+
+const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
 const Provider = ({ children }: { children: React.ReactNode }) => {
   const [queryClient] = useState(
@@ -18,11 +21,21 @@ const Provider = ({ children }: { children: React.ReactNode }) => {
       }),
   );
 
-  return (
+  const content = (
     <QueryClientProvider client={queryClient}>
       <ProvidersWithWebSocket>{children}</ProvidersWithWebSocket>
       <Toaster />
     </QueryClientProvider>
+  );
+
+  // only wrap with GoogleOAuthProvider once a client id is actually configured,
+  // so local setups without Google sign-in enabled don't crash on load
+  if (!GOOGLE_CLIENT_ID) return content;
+
+  return (
+    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+      {content}
+    </GoogleOAuthProvider>
   );
 };
 

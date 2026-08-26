@@ -17,11 +17,14 @@ import jwt, { JsonWebTokenError } from "jsonwebtoken";
 import { setCookie } from "../utils/cookies/setCookie";
 import bcrypt from "bcryptjs";
 import Stripe from "stripe";
+import { OAuth2Client } from "google-auth-library";
 import {sendLog} from "../utils/sendLog/sendlog";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2026-04-22.dahlia",
 });
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // Register a new user
 export const userRegistration = async (
@@ -102,8 +105,16 @@ export const loginUser = async (
 
     if (!user) return next(new AuthenticationError("User doesn't exists!"));
 
+    if (!user.password) {
+      return next(
+        new AuthenticationError(
+          "This account signed up with Google. Please use \"Sign In With Google\"."
+        )
+      );
+    }
+
     // verify password
-    const isMatch = await bcrypt.compare(password, user.password!);
+    const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
       return next(new AuthenticationError("Invalid email or password"));
@@ -130,6 +141,85 @@ export const loginUser = async (
     );
 
     //store the refresh and access token in httpOnly secure cookie
+    setCookie(res, "refresh_token", refreshToken);
+    setCookie(res, "access_token", accessToken);
+
+    res.status(200).json({
+      message: "Login successful!",
+      user: { id: user.id, email: user.email, name: user.name },
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+//login or register a user via a Google ID token (frontend uses @react-oauth/google)
+export const loginWithGoogle = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { idToken } = req.body;
+
+    if (!idToken) {
+      return next(new ValidationError("Google idToken is required!"));
+    }
+
+    if (!process.env.GOOGLE_CLIENT_ID) {
+      return next(
+        new ValidationError("Google sign-in is not configured on the server!")
+      );
+    }
+
+    let payload;
+    try {
+      const ticket = await googleClient.verifyIdToken({
+        idToken,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+      payload = ticket.getPayload();
+    } catch (error) {
+      return next(new AuthenticationError("Invalid Google token!"));
+    }
+
+    if (!payload?.email) {
+      return next(new AuthenticationError("Google account has no email!"));
+    }
+
+    if (!payload.email_verified) {
+      return next(new AuthenticationError("Google email is not verified!"));
+    }
+
+    let user = await prisma.users.findUnique({ where: { email: payload.email } });
+
+    if (!user) {
+      user = await prisma.users.create({
+        data: {
+          name: payload.name || payload.email.split("@")[0],
+          email: payload.email,
+          // Google-only accounts have no local password; login-user rejects
+          // them naturally since bcrypt.compare against null/undefined fails.
+          password: null,
+        },
+      });
+    }
+
+    res.clearCookie("seller-access-token");
+    res.clearCookie("seller-refresh-token");
+
+    const accessToken = jwt.sign(
+      { id: user.id, role: "user" },
+      process.env.ACCESS_TOKEN_SECRET as string,
+      { expiresIn: "15m" }
+    );
+
+    const refreshToken = jwt.sign(
+      { id: user.id, role: "user" },
+      process.env.REFRESH_TOKEN_SECRET as string,
+      { expiresIn: "7d" }
+    );
+
     setCookie(res, "refresh_token", refreshToken);
     setCookie(res, "access_token", accessToken);
 
@@ -236,6 +326,15 @@ export const userForgotPassword = async (
   await handleForgotPassword(req, res, next, "user");
 };
 
+//forgot password (seller)
+export const sellerForgotPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  await handleForgotPassword(req, res, next, "seller");
+};
+
 //Verify forgot password
 export const verifyForgotPassword = async (
   req: Request,
@@ -276,6 +375,49 @@ export const resetUserPassword = async (
     const hashPassword = bcrypt.hashSync(newPassword, 10);
 
     await prisma.users.update({
+      where: { email },
+      data: { password: hashPassword },
+    });
+
+    res.status(200).json({
+      message: "Password Reset successfully!",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+//Reset seller password
+export const resetSellerPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { email, newPassword } = req.body;
+
+    if (!email || !newPassword) {
+      return next(new ValidationError("Email and new password are required!"));
+    }
+
+    const seller = await prisma.sellers.findUnique({ where: { email } });
+    if (!seller) return next(new ValidationError("Seller not found!"));
+
+    // compare new password with the existing one
+    const isSamePassword = await bcrypt.compare(newPassword, seller.password!);
+
+    if (isSamePassword) {
+      return next(
+        new ValidationError(
+          "New password cannot be the same as the old password!"
+        )
+      );
+    }
+
+    //hash New password
+    const hashPassword = bcrypt.hashSync(newPassword, 10);
+
+    await prisma.sellers.update({
       where: { email },
       data: { password: hashPassword },
     });
@@ -349,6 +491,21 @@ export const verifySeller = async (
       data: { name, email, password: hashPassword, phone_number, country },
     });
 
+    // auto-login: the signup wizard immediately calls create-shop /
+    // create-stripe-link next, both of which now require a seller session
+    const accessToken = jwt.sign(
+      { id: seller.id, role: "seller" },
+      process.env.ACCESS_TOKEN_SECRET as string,
+      { expiresIn: "15m" }
+    );
+    const refreshToken = jwt.sign(
+      { id: seller.id, role: "seller" },
+      process.env.REFRESH_TOKEN_SECRET as string,
+      { expiresIn: "7d" }
+    );
+    setCookie(res, "seller-refresh-token", refreshToken);
+    setCookie(res, "seller-access-token", accessToken);
+
     res.status(201).json({
       seller,
       message: "Seller registered successfully!",
@@ -360,13 +517,14 @@ export const verifySeller = async (
 
 //create a new shop
 export const createShop = async (
-  req: Request,
+  req: any,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const { name, bio, address, opening_hours, website, category, sellerId } =
+    const { name, bio, address, opening_hours, website, category } =
       req.body;
+    const sellerId = req.seller.id;
 
     if (
       !name ||
@@ -374,8 +532,7 @@ export const createShop = async (
       !address ||
       !opening_hours ||
       !website ||
-      !category ||
-      !sellerId
+      !category
     ) {
       return next(new ValidationError("All field are required!"));
     }
@@ -408,14 +565,12 @@ export const createShop = async (
 
 //Create stripe connect account link
 export const createStripeConnectLink = async (
-  req: Request,
+  req: any,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const { sellerId } = req.body;
-
-    if (!sellerId) return next(new ValidationError("Seller ID is required!"));
+    const sellerId = req.seller.id;
 
     const seller = await prisma.sellers.findUnique({
       where: {
