@@ -87,10 +87,10 @@ const ProductCard = ({
       </Link>
 
       <Link
-        href={`/shop/${product?.Shop?.id}`}
+        href={`/shop/${product?.shop?.id}`}
         className="block text-blue-500 text-sm font-medium my-2 px-2"
       >
-        {product?.Shop?.name}
+        {product?.shop?.name}
       </Link>
 
       <Link href={`/product/${product?.slug}`}>

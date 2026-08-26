@@ -19,6 +19,7 @@ import {
   searchProducts,
   topShops,
   updateProduct,
+  uploadMedia,
   uploadProductImage,
 } from "../controllers/product.controller";
 import isAuthenticated from "@packages/middleware/isAuthenticated";
@@ -30,6 +31,7 @@ router.post("/create-discount-code", isAuthenticated, createDiscountCodes);
 router.get("/get-discount-codes", isAuthenticated, getDiscountCodes);
 router.delete("/delete-discount-code/:id", isAuthenticated, deleteDiscountCode);
 router.post("/upload-product-image", isAuthenticated, uploadProductImage);
+router.post("/upload-media", isAuthenticated, uploadMedia);
 router.delete("/delete-product-image", isAuthenticated, deleteProductImage);
 //CRUD Product
 router.post("/create-product", isAuthenticated, createProduct);

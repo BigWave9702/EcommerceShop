@@ -17,6 +17,12 @@ const nextConfig = {
     remotePatterns: [
       {
         hostname: "ik.imagekit.io",
+      },
+      {
+        hostname: "images.pexels.com",
+      },
+      {
+        hostname: "placehold.co",
       }
     ]
   }

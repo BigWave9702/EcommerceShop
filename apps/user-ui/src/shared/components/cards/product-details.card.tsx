@@ -16,7 +16,7 @@ import useLocationTracking from "apps/user-ui/src/hooks/useLocationTracking";
 import useUser from "apps/user-ui/src/hooks/useUser";
 import axiosInstance from "apps/user-ui/src/utils/axiosInstance";
 import { isProtected } from "apps/user-ui/src/utils/protected";
-import { getImageUrl } from "apps/user-ui/src/utils/image";
+import { DEFAULT_PRODUCT_IMAGE, getImageUrl } from "apps/user-ui/src/utils/image";
 
 const DEFAULT_SHOP_IMAGE =
   "https://ik.imagekit.io/bigwavehaibuithe/default-image.jpg?updatedAt=1757054034113";
@@ -59,7 +59,7 @@ const ProductDetailsCard = ({
 
     try {
       const res= await axiosInstance.post("/chatting/api/create-user-conversationGroup",
-        {sellerId: data?.Shop?.id},
+        {sellerId: data?.shop?.id},
         isProtected
       )
       router.push(`/inbox?conversationId=${res.data.conversation.id}`);
@@ -82,8 +82,8 @@ const ProductDetailsCard = ({
         <div className="w-full flex flex-col md:flex-row">
           <div className="w-full md:w-1/2 h-full">
             <Image
-              src={data?.images?.[activeImage]?.url}
-              alt={data?.images?.[activeImage].url}
+              src={getImageUrl(data?.images?.[activeImage], DEFAULT_PRODUCT_IMAGE)}
+              alt={data?.images?.[activeImage]?.url ?? data?.title ?? "Product image"}
               width={400}
               height={400}
               className="w-full rounded-lg object-contain"
@@ -101,7 +101,7 @@ const ProductDetailsCard = ({
                   onClick={() => setActiveImage(index)}
                 >
                   <Image
-                    src={img?.url}
+                    src={getImageUrl(img, DEFAULT_PRODUCT_IMAGE)}
                     alt={`Thumbnail ${index}`}
                     width={80}
                     height={80}
@@ -118,7 +118,7 @@ const ProductDetailsCard = ({
               <div className="flex items-start gap-3">
                 {/* Shop Logo */}
                 <Image
-                  src={getImageUrl(data?.Shop?.avatar, DEFAULT_SHOP_IMAGE)}
+                  src={getImageUrl(data?.shop?.avatar, DEFAULT_SHOP_IMAGE)}
                   alt="Shop Logo"
                   width={60}
                   height={60}
@@ -126,21 +126,21 @@ const ProductDetailsCard = ({
                 />
                 <div>
                   <Link
-                    href={`/shop/${data?.Shop?.id}`}
+                    href={`/shop/${data?.shop?.id}`}
                     className="text-lg font-medium"
                   >
-                    {data?.Shop?.name}
+                    {data?.shop?.name}
                   </Link>
 
                   {/* Shop Ratings */}
                   <span className="block mt-1">
-                    <Ratings rating={data?.Shop?.ratings} />
+                    <Ratings rating={data?.shop?.ratings} />
                   </span>
 
                   {/* Shop Location */}
                   <p className="text-gray-600 mt-1 flex items-center gap-2">
                     <MapPin size={20} />{" "}
-                    {data?.Shop?.address || "Location Not Available"}
+                    {data?.shop?.address || "Location Not Available"}
                   </p>
                 </div>
               </div>

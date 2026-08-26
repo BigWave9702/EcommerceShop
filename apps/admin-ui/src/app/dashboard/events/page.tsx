@@ -85,9 +85,9 @@ const EventsPage=() => {
       cell: ({row}: any) => new Date(row.original.ending_date).toLocaleDateString()
     },
     {
-      accessorKey: "Shop.name",
+      accessorKey: "shop.name",
       header: "Shop Name",
-      cell: ({row}: any) => row.original.Shop?.name || '-',
+      cell: ({row}: any) => row.original.shop?.name || '-',
     }
   ], []);
 
@@ -103,7 +103,7 @@ const EventsPage=() => {
 
   const exportToCSV = () => {
     const csvData=filteredEvents.map((event: any) =>
-      `${event.title},${event.sale_price},${event.stock},${new Date(event.starting_date).toLocaleDateString()},${new Date(event.ending_date).toLocaleDateString()},${event.Shop?.name||'-'}`
+      `${event.title},${event.sale_price},${event.stock},${new Date(event.starting_date).toLocaleDateString()},${new Date(event.ending_date).toLocaleDateString()},${event.shop?.name||'-'}`
     );
     const blob=new Blob(
       [`Title,Price,Stock,Starting Date,Ending Date,Shop Name\n${csvData.join("\n")}`],

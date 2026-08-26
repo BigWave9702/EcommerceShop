@@ -31,14 +31,11 @@ const ProvidersWithWebSocket = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const { user, isLoading } = useUser();
+  const { user } = useUser();
 
-  if (isLoading) return null;
-  return (
-    <>
-      {user && <WebSocketProvider user={user}>{children}</WebSocketProvider>}
-      {!user && children}
-    </>
-  );
+  if (user) {
+    return <WebSocketProvider user={user}>{children}</WebSocketProvider>;
+  }
+  return <>{children}</>;
 };
 export default Provider;

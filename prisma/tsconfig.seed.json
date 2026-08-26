@@ -1,0 +1,14 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "emitDeclarationOnly": false,
+    "noEmit": false,
+    "composite": false,
+    "isolatedModules": false,
+    "noUnusedLocals": false
+  }
+}

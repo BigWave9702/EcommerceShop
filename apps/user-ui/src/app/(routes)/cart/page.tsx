@@ -5,6 +5,7 @@ import useLocationTracking from "apps/user-ui/src/hooks/useLocationTracking";
 import useUser from "apps/user-ui/src/hooks/useUser";
 import { useStore } from "apps/user-ui/src/store";
 import axiosInstance from "apps/user-ui/src/utils/axiosInstance";
+import { DEFAULT_PRODUCT_IMAGE, getImageUrl } from "apps/user-ui/src/utils/image";
 import {Loader2} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -174,7 +175,7 @@ const CartPage = () => {
                   <tr key={item.id} className="border-b border-b-[#0000000e]">
                     <td className="flex items-center gap-3 p-4">
                       <Image
-                        src={item.images[0]?.url}
+                        src={getImageUrl(item.images?.[0], DEFAULT_PRODUCT_IMAGE)}
                         alt={item.title}
                         width={80}
                         height={80}

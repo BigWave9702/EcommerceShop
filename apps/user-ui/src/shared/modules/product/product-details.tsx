@@ -110,7 +110,7 @@ const ProductDetails = ({ productDetails }: { productDetails: any }) => {
 
     try {
       const res=await axiosInstance.post("/chatting/api/create-user-conversationGroup",
-        {sellerId: productDetails?.Shop?.id},
+        {sellerId: productDetails?.shop?.id},
         isProtected
       )
       router.push(`/inbox?conversationId=${res.data.conversation.id}`);
@@ -381,7 +381,7 @@ const ProductDetails = ({ productDetails }: { productDetails: any }) => {
                     Sold by
                   </span>
                   <span className="block max-w-[150px] truncate font-medium text-lg">
-                    {productDetails?.Shop?.name}
+                    {productDetails?.shop?.name}
                   </span>
                 </div>
 

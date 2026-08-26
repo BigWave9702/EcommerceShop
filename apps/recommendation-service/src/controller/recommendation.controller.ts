@@ -13,7 +13,7 @@ export const getRecommendedProducts = async (
     const userId=req.user.id;
 
     const products=await prisma.products.findMany({
-      include: {images: true, Shop: true},
+      include: {images: true, shop: true},
     });
 
     let userAnalytics=await prisma.userAnalytics.findUnique({
@@ -51,9 +51,9 @@ export const getRecommendedProducts = async (
         );
       } else {
         const recommendedProductIds=await recommendProducts(userId, products);
-        recommendedProducts=products.filter((product) => {
-          recommendedProductIds.includes(product.id);
-        });
+        recommendedProducts=products.filter((product) =>
+          recommendedProductIds.includes(product.id),
+        );
 
         await prisma.userAnalytics.update({
           where: {userId},

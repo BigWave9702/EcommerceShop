@@ -155,6 +155,58 @@ export const uploadProductImage = async (
   }
 };
 
+const UPLOAD_FOLDERS = ["products", "user"] as const;
+type UploadFolder = (typeof UPLOAD_FOLDERS)[number];
+
+const inferExtensionFromBase64 = (file: string): string => {
+  const match = /^data:(image|video)\/([a-zA-Z0-9.+-]+);base64,/.exec(file);
+  if (!match) return "bin";
+  return match[2] === "jpeg" ? "jpg" : match[2];
+};
+
+// generic media upload (image or video) to ImageKit — any authenticated
+// account (buyer, seller, or admin) may call this, it is not seller-only
+export const uploadMedia = async (
+  req: any,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { file, folder } = req.body;
+
+    if (!file) {
+      return next(new ValidationError("file is required!"));
+    }
+
+    if (!UPLOAD_FOLDERS.includes(folder)) {
+      return next(
+        new ValidationError(
+          `folder must be one of: ${UPLOAD_FOLDERS.join(", ")}`
+        )
+      );
+    }
+
+    const extension = inferExtensionFromBase64(file);
+    const fileName = `${folder}-${Date.now()}-${Math.round(
+      Math.random() * 1e9
+    )}.${extension}`;
+
+    const response = await imagekit.upload({
+      file,
+      fileName,
+      folder: `/${folder as UploadFolder}`,
+    });
+
+    res.status(201).json({
+      success: true,
+      key: response.fileId,
+      presigned_url: response.url,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 //Delete product images
 export const deleteProductImage = async (
   req: Request,
@@ -609,9 +661,7 @@ export const getAllProducts = async (
           shop: true,
         },
         where: baseFilter,
-        orderBy: {
-          totalSales: "desc",
-        },
+        orderBy,
       }),
 
       prisma.products.count({ where: baseFilter }),

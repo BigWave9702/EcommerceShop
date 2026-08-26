@@ -4,6 +4,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "npx nx run-many --target=serve --all --maxParallel=10",
+    "api-gateway": "npx nx run-many --target=serve --all --projects=@./api-gateway",
     "auth-docs": "node apps/auth-service/src/swagger.js",
     "product-docs": "node apps/product-service/src/swagger.js",
     "order-docs": "node apps/order-service/src/swagger.js",
@@ -11,9 +12,13 @@
     "seller-ui": "npx nx run-many --target=dev --all --projects=seller-ui",
     "admin-ui": "npx nx run-many --target=dev --all --projects=admin-ui",
     "build:ui": "npx nx run-many --target=build --projects=@./user-ui,@./seller-ui,@./admin-ui",
-    "build:backend": "npx nx run-many --target=build --projects=auth-service,@./api-gateway,@./product-service,@./seller-service,@./order-service,@./chatting-service,@./admin-service,@./kafka-service,@./logger-service,@./recomendation-service,@./user-service"
+    "build:backend": "npx nx run-many --target=build --projects=auth-service,@./api-gateway,@./product-service,@./seller-service,@./order-service,@./chatting-service,@./admin-service,@./kafka-service,@./logger-service,@./recomendation-service,@./user-service",
+    "db:seed": "prisma db seed"
   },
   "private": true,
+  "prisma": {
+    "seed": "ts-node --project prisma/tsconfig.seed.json --transpile-only prisma/seed.ts"
+  },
   "dependencies": {
     "@prisma/client": "^6.14.0",
     "@stripe/react-stripe-js": "^4.0.2",

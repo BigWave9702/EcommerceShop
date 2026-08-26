@@ -38,13 +38,15 @@ const Header=() => {
       <div className="w-[80%] py-5 m-auto flex items-center justify-between">
         <div>
           <Link href={"/"}>
-            <Image
-              src={layout?.logo}
-              width={100}
-              height={100}
-              alt=""
-              className="h-[70px] ml-[-50px] mb-[-30px] object-cover"
-            />
+            {layout?.logo && (
+              <Image
+                src={layout.logo}
+                width={100}
+                height={100}
+                alt="Logo"
+                className="h-[70px] ml-[-50px] mb-[-30px] object-cover"
+              />
+            )}
           </Link>
         </div>
         {/* Search */}
