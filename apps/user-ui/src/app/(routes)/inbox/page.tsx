@@ -7,9 +7,9 @@ import axiosInstance from "apps/user-ui/src/utils/axiosInstance";
 import { isProtected } from "apps/user-ui/src/utils/protected";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import React, { useEffect, useRef, useState } from "react";
+import React, { Suspense, useEffect, useRef, useState } from "react";
 
-const Page = () => {
+const InboxContent = () => {
   const searchParams = useSearchParams();
   const { user } = useRequiredAuth();
   const router = useRouter();
@@ -344,5 +344,11 @@ const Page = () => {
     </div>
   );
 };
+
+const Page = () => (
+  <Suspense fallback={<div className="w-full h-screen" />}>
+    <InboxContent />
+  </Suspense>
+);
 
 export default Page;

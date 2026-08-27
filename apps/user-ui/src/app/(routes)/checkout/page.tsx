@@ -1,5 +1,5 @@
 'use client';
-import React, {useEffect, useState} from 'react';
+import React, {Suspense, useEffect, useState} from 'react';
 import {Elements} from "@stripe/react-stripe-js";
 import {loadStripe, Appearance} from "@stripe/stripe-js";
 import {useSearchParams} from 'next/navigation';
@@ -10,7 +10,7 @@ import CheckOutForm from 'apps/user-ui/src/shared/components/checkout/checkOutFo
 
 const stripePromise = loadStripe(process.env.PUBLIC_STRIPE_PUBLIC_KEY!)
 
-const Page=() => {
+const CheckoutContent=() => {
   const [clientSecret, setClientSecret]=useState("");
   const [cartItem, setCartItem]=useState<any[]>([]);
   const [coupon, setCoupon]=useState();
@@ -120,5 +120,11 @@ const Page=() => {
     )
   )
 }
+
+const Page = () => (
+  <Suspense fallback={<div className="w-full py-10 text-center">Loading checkout...</div>}>
+    <CheckoutContent />
+  </Suspense>
+);
 
 export default Page
